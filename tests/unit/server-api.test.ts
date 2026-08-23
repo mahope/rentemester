@@ -1326,9 +1326,11 @@ describe("cockpit API — VAT bad-debt adjustment (#271)", () => {
 // write-off happens to touch. It must agree with the static dashboard, which
 // keys off the quarter containing the as-of date.
 describe("cockpit API — VAT period selection (#272)", () => {
-  // The genuine activity is in Q2 2026 — the current quarter (today is in
-  // May 2026). A bad-debt write-off lands in the next quarter, Q3; the
-  // future-date ceiling is widened so the later-quarter posting is accepted.
+  // Alt forankres i "nu" så testen ikke råddner med kalenderen: ægte aktivitet
+  // ligger i kvartalet der indeholder i dag, og en bad-debt-afskrivning lander
+  // i det FØLGENDE kvartal; fremtidsloftet udvides så den senere posting er
+  // tilladt. Forventningerne beregnes uafhængigt af core/periods.ts (kvartal-
+  // grænser og den statutariske frist: 1. i tredje måned efter kvartalslut).
   const originalMaxFuture = process.env.RENTEMESTER_MAX_FUTURE_DAYS;
   function withWideFutureWindow<T>(fn: () => T): T {
     process.env.RENTEMESTER_MAX_FUTURE_DAYS = "120";
@@ -1343,37 +1345,54 @@ describe("cockpit API — VAT period selection (#272)", () => {
     }
   }
 
+  function currentQuarter() {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const startMonthIndex = Math.floor(now.getUTCMonth() / 3) * 3; // 0-based
+    const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+    const deadlineMonth = startMonthIndex + 6; // 1-baseret, kan overstige 12
+    return {
+      year,
+      today: now.toISOString().slice(0, 10),
+      label: `Q${startMonthIndex / 3 + 1} ${year}`,
+      start: iso(Date.UTC(year, startMonthIndex, 1)),
+      end: iso(Date.UTC(year, startMonthIndex + 3, 0)),
+      deadline: `${year + Math.floor((deadlineMonth - 1) / 12)}-${String(((deadlineMonth - 1) % 12) + 1).padStart(2, "0")}-01`,
+      nextQuarterMid: iso(Date.UTC(year, startMonthIndex + 3, 15)),
+    };
+  }
+
   test("surfaces the active quarter, not a later quarter holding only a write-off", async () => {
     const ws = makeWorkspace("vat-period", ["Acme ApS"]);
     try {
-      // The genuine activity is in Q2 2026 (today, May 2026, is in Q2).
-      postPnlEntry(ws, "acme-aps", "2026-05-15", 1000, 400);
-      // A bad-debt write-off lands in Q3 2026 — a later, otherwise-empty
-      // quarter. It must NOT pull the surfaced VAT period forward to Q3.
+      const q = currentQuarter();
+      // The genuine activity is in the current quarter (dated today); the
+      // bad-debt write-off lands in a later, otherwise-empty quarter. It must
+      // NOT pull the surfaced VAT period forward.
+      postPnlEntry(ws, "acme-aps", q.today, 1000, 400);
       withWideFutureWindow(() =>
-        postBadDebtWriteoff(ws, "acme-aps", "2026-07-15", 800),
+        postBadDebtWriteoff(ws, "acme-aps", q.nextQuarterMid, 800),
       );
 
       const vatRes = await get(
         config({ workspaceRoot: ws }),
-        "/api/companies/acme-aps/vat?year=2026",
+        `/api/companies/acme-aps/vat?year=${q.year}`,
       );
       expect(vatRes.status).toBe(200);
-      // Q2 2026 (Apr–Jun) is the period that is currently due.
-      expect(vatRes.body.vat.periodLabel).toBe("Q2 2026");
-      expect(vatRes.body.vat.periodStart).toBe("2026-04-01");
-      expect(vatRes.body.vat.periodEnd).toBe("2026-06-30");
-      // Q2 → momsangivelse due 1 September 2026.
-      expect(vatRes.body.vat.deadline).toBe("2026-09-01");
+      // The currently-due period is the active one containing today.
+      expect(vatRes.body.vat.periodLabel).toBe(q.label);
+      expect(vatRes.body.vat.periodStart).toBe(q.start);
+      expect(vatRes.body.vat.periodEnd).toBe(q.end);
+      expect(vatRes.body.vat.deadline).toBe(q.deadline);
 
       // The Overblik VAT card must agree with the dedicated VAT view.
       const ovRes = await get(
         config({ workspaceRoot: ws }),
-        "/api/companies/acme-aps/overview?year=2026",
+        `/api/companies/acme-aps/overview?year=${q.year}`,
       );
       expect(ovRes.status).toBe(200);
-      expect(ovRes.body.overview.vat.periodLabel).toBe("Q2 2026");
-      expect(ovRes.body.overview.vat.periodEnd).toBe("2026-06-30");
+      expect(ovRes.body.overview.vat.periodLabel).toBe(q.label);
+      expect(ovRes.body.overview.vat.periodEnd).toBe(q.end);
     } finally {
       rmSync(ws, { recursive: true, force: true });
     }
@@ -1382,25 +1401,26 @@ describe("cockpit API — VAT period selection (#272)", () => {
   test("the cockpit VAT period agrees with the static dashboard", async () => {
     const ws = makeWorkspace("vat-period-parity", ["Acme ApS"]);
     try {
-      postPnlEntry(ws, "acme-aps", "2026-05-15", 1000, 400);
+      const q = currentQuarter();
+      postPnlEntry(ws, "acme-aps", q.today, 1000, 400);
       withWideFutureWindow(() =>
-        postBadDebtWriteoff(ws, "acme-aps", "2026-07-15", 800),
+        postBadDebtWriteoff(ws, "acme-aps", q.nextQuarterMid, 800),
       );
 
       // The static dashboard's VAT period is keyed off the as-of date.
       const dashRes = await get(
         config({ workspaceRoot: ws }),
-        "/api/companies/acme-aps/dashboard?asOf=2026-05-22",
+        `/api/companies/acme-aps/dashboard?asOf=${q.today}`,
       );
       expect(dashRes.status).toBe(200);
-      // Static dashboard: Q2 (the as-of date's quarter).
-      expect(dashRes.body.dashboard.vat.periodStart).toBe("2026-04-01");
-      expect(dashRes.body.dashboard.vat.periodEnd).toBe("2026-06-30");
+      // Static dashboard: the as-of date's quarter — the active one.
+      expect(dashRes.body.dashboard.vat.periodStart).toBe(q.start);
+      expect(dashRes.body.dashboard.vat.periodEnd).toBe(q.end);
 
       // The cockpit VAT view must land on the same period.
       const vatRes = await get(
         config({ workspaceRoot: ws }),
-        "/api/companies/acme-aps/vat?year=2026",
+        `/api/companies/acme-aps/vat?year=${q.year}`,
       );
       expect(vatRes.body.vat.periodStart).toBe(
         dashRes.body.dashboard.vat.periodStart,
