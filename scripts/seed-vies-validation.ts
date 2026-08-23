@@ -11,11 +11,11 @@ if (!companyRoot || !vatOrCvr) {
 
 const db = openDb(companyPaths(companyRoot).db);
 migrate(db);
+// validatedAt/expiresAt bevidst udeladt: storeViesValidation default'er til
+// "nu" + 90 dages TTL, så seedet altid er friskt når demoen/smoke kører.
 const validation = storeViesValidation(db, {
   vatOrCvr,
   valid: true,
-  validatedAt: "2026-05-16T00:00:00.000Z",
-  expiresAt: "2026-08-16T00:00:00.000Z",
   rawResponse: JSON.stringify({ valid: true, source: "smoke-seed" }),
 });
 db.close();

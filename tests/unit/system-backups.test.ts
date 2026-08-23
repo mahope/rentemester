@@ -189,10 +189,17 @@ describe("system backups", () => {
     const db = openDb(paths.db);
     migrate(db);
 
+    const oldBackupAt = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+    const statusCheckAt = new Date().toISOString();
+    // Transaktionsdatoer afledes af backup-tidspunktet så scenariet ikke
+    // råddner: aktivitet før og efter den 8 dage gamle backup.
+    const dayBeforeBackup = new Date(Date.parse(oldBackupAt) - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const dayAfterBackup = new Date(Date.parse(oldBackupAt) + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
     db.run(
       "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)",
-      "2026-05-16",
-      "2026-05-16",
+      dayBeforeBackup,
+      dayBeforeBackup,
       "Customer payment",
       1250,
       "REF-1",
@@ -201,15 +208,13 @@ describe("system backups", () => {
       "tx-1",
     );
 
-    const oldBackupAt = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
-    const statusCheckAt = new Date().toISOString();
     const backup = createSystemBackup(db, companyRoot, { createdAt: oldBackupAt });
     expect(backup.ok).toBe(true);
 
     db.run(
       "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)",
-      "2026-05-17",
-      "2026-05-17",
+      dayAfterBackup,
+      dayAfterBackup,
       "Late customer payment",
       500,
       "REF-2",

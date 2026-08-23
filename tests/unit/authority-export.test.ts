@@ -16,6 +16,8 @@ function sha256(path: string) {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
+const FOUR_WEEKS_MS = 28 * 24 * 60 * 60 * 1000;
+
 describe("authority export", () => {
   test("exports a deterministic period package with audit, exceptions, accounts, and readable supporting documents", () => {
     const root = mkdtempSync(join(tmpdir(), "rentemester-authority-export-"));
@@ -27,14 +29,35 @@ describe("authority export", () => {
     seedAccounts(db);
     db.run("INSERT INTO companies (id, name, country, currency) VALUES (1, 'Rentemester Test', 'DK', 'DKK')");
 
-    const issued = issueInvoice(db, companyRoot, JSON.parse(readFileSync(join(process.cwd(), "examples/full-invoice.dk.json"), "utf8")));
+    // Audit-log-rækker stemples med den rigtige ur, og fetchAuditLog filtrerer
+    // på created_at inde i perioden — derfor ankeres perioden omkring "nu"
+    // (periodEnd = sidste dag i NÆSTE måned som margin) med dynamiske
+    // fixture-datoer, så testen ikke råddner med kalenderen.
+    const nowMs = Date.now();
+    const utcDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+    const monthStartUtc = new Date(nowMs);
+    monthStartUtc.setUTCDate(1);
+    const periodStart = utcDay(monthStartUtc.getTime());
+    const periodEnd = utcDay(Date.UTC(monthStartUtc.getUTCFullYear(), monthStartUtc.getUTCMonth() + 2, 0));
+    const requestedAt = new Date(nowMs).toISOString();
+    const deadlineAt = new Date(nowMs + FOUR_WEEKS_MS).toISOString();
+
+    const invoiceFixture = JSON.parse(readFileSync(join(process.cwd(), "examples/full-invoice.dk.json"), "utf8"));
+    invoiceFixture.issueDate = periodStart;
+    invoiceFixture.dueDate = utcDay(nowMs + 30 * 24 * 60 * 60 * 1000);
+    const issued = issueInvoice(db, companyRoot, invoiceFixture);
     expect(issued.ok).toBe(true);
     const posted = postIssuedInvoiceToLedger(db, { invoiceDocumentId: issued.documentId! });
     expect(posted.ok).toBe(true);
 
-    const ingested = ingestDocument(db, companyRoot, join(process.cwd(), "examples/vendor-invoice.txt"), JSON.parse(readFileSync(join(process.cwd(), "examples/vendor-invoice.metadata.json"), "utf8")));
+    const vendorMetadata = JSON.parse(readFileSync(join(process.cwd(), "examples/vendor-invoice.metadata.json"), "utf8"));
+    vendorMetadata.issueDate = periodStart;
+    const ingested = ingestDocument(db, companyRoot, join(process.cwd(), "examples/vendor-invoice.txt"), vendorMetadata);
     expect(ingested.ok).toBe(true);
-    const expense = postJournalEntry(db, JSON.parse(readFileSync(join(process.cwd(), "examples/journal-entry.expense.json"), "utf8")));
+
+    const expenseFixture = JSON.parse(readFileSync(join(process.cwd(), "examples/journal-entry.expense.json"), "utf8"));
+    expenseFixture.transactionDate = periodStart;
+    const expense = postJournalEntry(db, expenseFixture);
     expect(expense.ok).toBe(true);
 
     db.run(
@@ -49,23 +72,23 @@ describe("authority export", () => {
     );
 
     const first = exportAuthorityPackage(db, companyRoot, {
-      periodStart: "2026-05-01",
-      periodEnd: "2026-05-31",
+      periodStart,
+      periodEnd,
       outputDir: exportRoot,
-      requestedAt: "2026-05-17T02:24:00.000Z",
+      requestedAt,
       requester: "Skattestyrelsen",
     });
 
     expect(first.ok).toBe(true);
-    expect(first.generatedAt).toBe("2026-05-17T02:24:00.000Z");
-    expect(first.deadlineAt).toBe("2026-06-14T02:24:00.000Z");
+    expect(first.generatedAt).toBe(requestedAt);
+    expect(first.deadlineAt).toBe(deadlineAt);
     expect(existsSync(first.manifestPath!)).toBe(true);
 
     const second = exportAuthorityPackage(db, companyRoot, {
-      periodStart: "2026-05-01",
-      periodEnd: "2026-05-31",
+      periodStart,
+      periodEnd,
       outputDir: exportRoot,
-      requestedAt: "2026-05-17T02:24:00.000Z",
+      requestedAt,
       requester: "Skattestyrelsen",
     });
 
