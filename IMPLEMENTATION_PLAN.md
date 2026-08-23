@@ -153,7 +153,31 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
 - **Accept verificeret**: `bun test` = 1233/1233 grønne; `bun run smoke` exit 0;
   `bun run typecheck` = 0 fejl; `bun run lint` exit 0; `git diff --check` ren.
 
-### 5. [P3] Fejlbeskeder + døde stier
+### 5. [P3] FÆRDIG — Fejlbeskeder + døde stier
+- **Løst 2026-08-23** (commit eecbed2):
+  - Forbedrede 8 vage fejlbeskeder på tværs af core/ og mcp/:
+    - SMTP-fejl nævner nu host + fakturanummer (email.ts)
+    - Restore-fejl nævner backupId, createdAt, target (system-restore.ts)
+    - "resolveDocumentMasterData failed" → beskrivende dansk (documents.ts,
+      write-handlers.ts ×2)
+    - "unsafe path" → forklarer hvorfor og giver handlingsanvisning
+      (tool-runtime.ts)
+    - "not exist or not initialized" → "does not exist: <redacted> — run
+      'company init' first" med path-redaction (tool-runtime.ts)
+    - "only DKK" → nævner faktisk currency (invoice-reminders.ts)
+    - "could not be evaluated" → "is unavailable (check destination and
+      server logs)" (backup-governance.ts)
+    - vat.ts error: wrapCoreResult + appliedRules:[] → errorEnvelope (renere
+      envelope)
+  - Fjernet død kode (10 unused exports: dbExists, isValidEanNumber,
+    asBankTransactionId, CustomerRecord, VendorRecord, FALLBACK_DASH,
+    CompanyPaths, envelopeOutputSchema; dead barrel src/server/index.ts)
+  - Udvidede cli-errors.test.ts med 3 nye tests: exit 2 for parse/usage,
+    exit 1 for business rejection, JSON envelope med specifikke errors
+  - Ingen ændringer i ledger/hash-kæde/beregningslogik — ren
+    test-infra + kosmetiske fejlbeskeder
+- **Accept verificeret**: `bun test` = 1236/1236 grønne (3 nye); `bun run smoke` exit 0;
+  `bun run typecheck` = 0 fejl; `bun run lint` exit 0; `git diff --check` ren.
 - Gennemgå envelope `ok/errors[]`-konsistens i CLI/MCP-svar; tydeligere beskeder hvor
   diffuse. Kør lint/typecheck-fund igennem for død kode.
 - **Accept**: cli-errors.test.ts udvidet; ingen funktionsændringer uden bevis.
@@ -201,4 +225,9 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
 - 2026-08-23: Opgave 4 løst (9a103df). 70 nye randtilfælde-tests på tværs af 6 filer.
   Alle gates grønne. Næste: opgave 5 (fejlbeskeder + døde stier).
 
-## STATUS: AKTIV — næste iteration starter opgave 5 (fejlbeskeder + døde stier).
+- 2026-08-23: Opgave 5 løst (eecbed2). 8 forbedrede fejlbeskeder, 10 døde exports +
+  dead barrel fjernet, 3 nye CLI-error-tests. Fund: `safeErrorEnvelope` bruger
+  `redactPaths` — vigtigt at huske ved ændring af `withCompanyDb`-fejlbeskeder.
+  Næste: opgave 6 (docs-sync).
+
+## STATUS: AKTIV — næste iteration starter opgave 6 (docs-sync).
