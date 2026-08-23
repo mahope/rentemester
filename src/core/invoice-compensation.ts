@@ -254,8 +254,7 @@ export function postInvoiceLateCompensationToLedger(db: Database, input: PostInv
 
       db.run(
         `INSERT INTO invoice_compensation_postings (compensation_claim_id, journal_entry_id) VALUES (?, ?)`,
-        claim.id,
-        journal.entryId,
+        [claim.id, journal.entryId!],
       );
 
       insertAuditLog(db, {

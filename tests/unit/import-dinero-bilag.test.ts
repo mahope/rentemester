@@ -172,10 +172,10 @@ describe("Dinero bilag ingest (#196)", () => {
         id: number;
       };
       expect(() =>
-        db.run("UPDATE import_document_links SET voucher_ref = 'x' WHERE id = ?", link.id),
+        db.run("UPDATE import_document_links SET voucher_ref = 'x' WHERE id = ?", [link.id]),
       ).toThrow();
       expect(() =>
-        db.run("DELETE FROM import_document_links WHERE id = ?", link.id),
+        db.run("DELETE FROM import_document_links WHERE id = ?", [link.id]),
       ).toThrow();
     } finally {
       db.close();

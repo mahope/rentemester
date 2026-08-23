@@ -23,7 +23,7 @@ export function register(dispatch: CommandDispatch): void {
     const vendorIdRaw = ctx.arg("--vendor-id");
     const vendorId = vendorIdRaw === undefined ? undefined : Number(vendorIdRaw);
     const resolved = resolveDocumentMasterData(db, metadata, {
-      vendorId: Number.isInteger(vendorId) && vendorId > 0 ? vendorId : undefined,
+      vendorId: vendorId !== undefined && Number.isInteger(vendorId) && vendorId > 0 ? vendorId : undefined,
     });
     if (!resolved.ok) {
       ctx.emitResult(resolved as Record<string, unknown>);

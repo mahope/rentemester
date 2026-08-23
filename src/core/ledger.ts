@@ -213,7 +213,10 @@ function accountMap(db: Database) {
 
 export function validateJournalEntry(db: Database, payload: JournalEntryInput) {
   const errors: string[] = [];
-  const appliedRules = [LEDGER_RULES.BALANCED, LEDGER_RULES.APPEND_ONLY];
+  const appliedRules: Array<(typeof LEDGER_RULES)[keyof typeof LEDGER_RULES]> = [
+    LEDGER_RULES.BALANCED,
+    LEDGER_RULES.APPEND_ONLY,
+  ];
   const lines = payload.lines ?? [];
   const currency = (payload.currency ?? 'DKK').trim().toUpperCase();
 

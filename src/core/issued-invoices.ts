@@ -265,7 +265,7 @@ export function issueInvoice(db: Database, companyRoot: string, rawPayload: Invo
       vatAmount,
       payload.reverseChargeBasis ?? null,
       serialized,
-      retainUntilForDate(db, payload.issueDate),
+      retainUntilForDate(db, payload.issueDate!),
     ) as { id: number };
 
       const pdfInserted = db.query(
@@ -294,7 +294,7 @@ export function issueInvoice(db: Database, companyRoot: string, rawPayload: Invo
       payload.buyer?.vatOrCvr ?? null,
       vatAmount,
       serialized,
-      retainUntilForDate(db, payload.issueDate),
+      retainUntilForDate(db, payload.issueDate!),
     ) as { id: number };
 
       insertAuditLog(db, {

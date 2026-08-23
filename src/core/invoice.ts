@@ -97,7 +97,10 @@ export function validateInvoice(payload: InvoicePayload): InvoiceValidationResul
   const invoiceType = payload.invoiceType;
   const vatTreatment = payload.vatTreatment ?? "standard";
   const currency = normalizedCurrency(payload);
-  const appliedRules = [invoiceType === "simplified" ? RULES.SIMPLIFIED : RULES.FULL, RULES.ARITHMETIC];
+  const appliedRules: Array<(typeof RULES)[keyof typeof RULES]> = [
+    invoiceType === "simplified" ? RULES.SIMPLIFIED : RULES.FULL,
+    RULES.ARITHMETIC,
+  ];
 
   if (!looksLikeIsoDate(payload.issueDate)) errors.push("issueDate must be present in YYYY-MM-DD format");
   if (payload.dueDate !== undefined && !looksLikeIsoDate(payload.dueDate)) errors.push("dueDate must be YYYY-MM-DD when present");

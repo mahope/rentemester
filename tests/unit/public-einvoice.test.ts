@@ -67,9 +67,9 @@ describe("public e-invoice preview export", () => {
 
     expect(first.ok).toBe(true);
     expect(second.ok).toBe(true);
-    expect(first.sha256).toBe(second.sha256);
+    expect(first.sha256).toBe(second.sha256!);
     expect(first.xml).toBe(second.xml);
-    expect(readFileSync(outPath, "utf8")).toBe(first.xml);
+    expect(first.xml as string).toBe(readFileSync(outPath, "utf8"));
     expect(first.xml).toContain("<EanNumber>5790000000001</EanNumber>");
     expect(first.xml).toContain("<Transport>out_of_scope_peppol_access_point_required</Transport>");
 
@@ -135,9 +135,9 @@ describe("public e-invoice preview export", () => {
 
     expect(first.ok).toBe(true);
     expect(second.ok).toBe(true);
-    expect(first.sha256).toBe(second.sha256);
+    expect(first.sha256).toBe(second.sha256!);
     expect(first.xml).toBe(second.xml);
-    expect(readFileSync(outPath, "utf8")).toBe(first.xml);
+    expect(first.xml as string).toBe(readFileSync(outPath, "utf8"));
     expect(first.xml).toContain("<cbc:CustomizationID>urn:fdc:oioubl.dk:trns:billing:invoice:3.0</cbc:CustomizationID>");
     expect(first.xml).toContain("<cbc:ProfileID>urn:fdc:oioubl.dk:bis:billing_with_response:3</cbc:ProfileID>");
     expect(first.xml).toContain('<cbc:EndpointID schemeID="0188">5790000000001</cbc:EndpointID>');

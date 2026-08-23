@@ -230,7 +230,7 @@ function sha256Text(text: string) {
 }
 
 function uniqueIds(values: Array<number | null | undefined>) {
-  return [...new Set(values.filter((value): value is number => Number.isInteger(value) && value > 0))].sort((a, b) => a - b);
+  return [...new Set(values.filter((value): value is number => typeof value === "number" && Number.isInteger(value) && value > 0))].sort((a, b) => a - b);
 }
 
 function exportFileName(document: DocumentRecord) {

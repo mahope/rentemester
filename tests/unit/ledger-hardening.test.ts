@@ -29,8 +29,8 @@ describe("ledger hardening", () => {
     });
     expect(posted.ok).toBe(true);
 
-    expect(() => db.run("UPDATE journal_lines SET debit_amount = 999 WHERE journal_entry_id = ?", posted.entryId!)).toThrow("journal_lines are append-only");
-    expect(() => db.run("DELETE FROM journal_lines WHERE journal_entry_id = ?", posted.entryId!)).toThrow("journal_lines are append-only");
+    expect(() => db.run("UPDATE journal_lines SET debit_amount = 999 WHERE journal_entry_id = ?", [posted.entryId!])).toThrow("journal_lines are append-only");
+    expect(() => db.run("DELETE FROM journal_lines WHERE journal_entry_id = ?", [posted.entryId!])).toThrow("journal_lines are append-only");
 
     db.close();
     rmSync(root, { recursive: true, force: true });
@@ -72,8 +72,8 @@ describe("ledger hardening", () => {
     });
     expect(posted.ok).toBe(true);
 
-    expect(() => db.run("UPDATE documents SET amount_inc_vat = 999 WHERE id = ?", doc.documentId!)).toThrow("document is linked to a journal entry");
-    expect(() => db.run("DELETE FROM documents WHERE id = ?", doc.documentId!)).toThrow("document is linked to a journal entry");
+    expect(() => db.run("UPDATE documents SET amount_inc_vat = 999 WHERE id = ?", [doc.documentId!])).toThrow("document is linked to a journal entry");
+    expect(() => db.run("DELETE FROM documents WHERE id = ?", [doc.documentId!])).toThrow("document is linked to a journal entry");
 
     db.close();
     rmSync(root, { recursive: true, force: true });
@@ -140,8 +140,8 @@ describe("ledger hardening", () => {
     });
     expect(posted.ok).toBe(true);
 
-    expect(() => db.run("UPDATE bank_transactions SET amount = 9999 WHERE id = ?", bank.id)).toThrow("bank transaction is referenced by ledger or payment records and cannot be modified");
-    expect(() => db.run("DELETE FROM bank_transactions WHERE id = ?", bank.id)).toThrow("bank transactions are append-only");
+    expect(() => db.run("UPDATE bank_transactions SET amount = 9999 WHERE id = ?", [bank.id])).toThrow("bank transaction is referenced by ledger or payment records and cannot be modified");
+    expect(() => db.run("DELETE FROM bank_transactions WHERE id = ?", [bank.id])).toThrow("bank transactions are append-only");
 
     db.close();
     rmSync(root, { recursive: true, force: true });
@@ -165,8 +165,8 @@ describe("ledger hardening", () => {
     expect(posted.ok).toBe(true);
 
     const audit = db.query("SELECT id FROM audit_log WHERE event_type = 'journal_post' ORDER BY id DESC LIMIT 1").get() as { id: number };
-    expect(() => db.run("UPDATE audit_log SET actor = 'spoof@example.com' WHERE id = ?", audit.id)).toThrow("audit_log is append-only");
-    expect(() => db.run("DELETE FROM audit_log WHERE id = ?", audit.id)).toThrow("audit_log is append-only");
+    expect(() => db.run("UPDATE audit_log SET actor = 'spoof@example.com' WHERE id = ?", [audit.id])).toThrow("audit_log is append-only");
+    expect(() => db.run("DELETE FROM audit_log WHERE id = ?", [audit.id])).toThrow("audit_log is append-only");
 
     const period = closeAccountingPeriod(db, {
       periodStart: "2026-05-01",
@@ -175,8 +175,8 @@ describe("ledger hardening", () => {
       status: "closed"
     });
     expect(period.ok).toBe(true);
-    expect(() => db.run("UPDATE accounting_periods SET status = 'open' WHERE id = ?", period.periodId!)).toThrow("accounting periods may only progress open -> closed -> reported; period bounds are immutable");
-    expect(() => db.run("DELETE FROM accounting_periods WHERE id = ?", period.periodId!)).toThrow("accounting periods are append-only");
+    expect(() => db.run("UPDATE accounting_periods SET status = 'open' WHERE id = ?", [period.periodId!])).toThrow("accounting periods may only progress open -> closed -> reported; period bounds are immutable");
+    expect(() => db.run("DELETE FROM accounting_periods WHERE id = ?", [period.periodId!])).toThrow("accounting periods are append-only");
 
     expect(() => db.run("UPDATE sequences SET value = value - 1 WHERE kind = 'journal_entry'")).toThrow("sequences are immutable identifiers and monotonically increasing");
     expect(() => db.run("DELETE FROM sequences WHERE kind = 'journal_entry'")).toThrow("sequences are append-only");
@@ -186,9 +186,9 @@ describe("ledger hardening", () => {
        VALUES ('UNMATCHED_BANK_TRANSACTION', 'high', 'open', 'Needs review', 'Match to document')
        RETURNING id`
     ).get() as { id: number };
-    db.run("UPDATE exceptions SET status = 'resolved', resolved_at = CURRENT_TIMESTAMP, resolved_by = 'tester', resolution_note = 'done' WHERE id = ?", exception.id);
-    expect(() => db.run("UPDATE exceptions SET status = 'open' WHERE id = ?", exception.id)).toThrow("exceptions may only progress from open to resolved; identity is immutable");
-    expect(() => db.run("DELETE FROM exceptions WHERE id = ?", exception.id)).toThrow("exceptions are append-only; resolve them instead");
+    db.run("UPDATE exceptions SET status = 'resolved', resolved_at = CURRENT_TIMESTAMP, resolved_by = 'tester', resolution_note = 'done' WHERE id = ?", [exception.id]);
+    expect(() => db.run("UPDATE exceptions SET status = 'open' WHERE id = ?", [exception.id])).toThrow("exceptions may only progress from open to resolved; identity is immutable");
+    expect(() => db.run("DELETE FROM exceptions WHERE id = ?", [exception.id])).toThrow("exceptions are append-only; resolve them instead");
 
     expect(() => db.run("UPDATE companies SET fiscal_year_start_month = 7 WHERE id = 1")).toThrow("fiscal year configuration is locked after the first journal entry");
 
@@ -228,8 +228,8 @@ describe("ledger hardening", () => {
       ]
     });
     expect(posted.ok).toBe(true);
-    expect(() => db.run("DELETE FROM journal_entries WHERE id = ?", posted.entryId!)).toThrow("journal_entries are append-only");
-    expect(() => db.run("DELETE FROM journal_lines WHERE journal_entry_id = ?", posted.entryId!)).toThrow("journal_lines are append-only");
+    expect(() => db.run("DELETE FROM journal_entries WHERE id = ?", [posted.entryId!])).toThrow("journal_entries are append-only");
+    expect(() => db.run("DELETE FROM journal_lines WHERE journal_entry_id = ?", [posted.entryId!])).toThrow("journal_lines are append-only");
 
     db.close();
     rmSync(root, { recursive: true, force: true });
@@ -284,7 +284,7 @@ describe("ledger hardening", () => {
     expect(posted.ok).toBe(true);
 
     db.run("DROP TRIGGER documents_no_update_issued_invoice");
-    db.run("UPDATE documents SET status = 'paid' WHERE id = ?", issued.documentId!);
+    db.run("UPDATE documents SET status = 'paid' WHERE id = ?", [issued.documentId!]);
 
     const result = verifyAuditChain(db);
     expect(result.ok).toBe(false);

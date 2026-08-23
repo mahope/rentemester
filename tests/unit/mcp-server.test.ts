@@ -32,7 +32,7 @@ type JsonRpcResponse = {
 };
 
 class StdioMcpClient {
-  private proc: ReturnType<typeof Bun.spawn>;
+  private proc: Bun.Subprocess<"pipe", "pipe", "pipe">;
   private stdoutReader: ReadableStreamDefaultReader<Uint8Array>;
   private decoder = new TextDecoder();
   private buffer = "";
@@ -202,7 +202,7 @@ describe("MCP server scaffold", () => {
       seedAccounts(db);
       // Old bookkeeping activity with no backup -> a weekly backup is overdue.
       db.run(
-        "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)",
+        "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)", [
         "2026-01-01",
         "2026-01-01",
         "Old activity",
@@ -211,7 +211,7 @@ describe("MCP server scaffold", () => {
         "mcp-lock-batch",
         "mcp-lock-hash",
         "mcp-lock-tx",
-      );
+      ]);
       db.close();
 
       const lockResp = await client.send("tools/call", {

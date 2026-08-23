@@ -16,7 +16,7 @@ describe("backup lock CLI guard", () => {
       const db = openDb(join(company, "data", "ledger.sqlite"));
       migrate(db);
       db.run(
-        "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)",
+        "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)", [
         "2026-01-01",
         "2026-01-01",
         "Old activity",
@@ -25,7 +25,7 @@ describe("backup lock CLI guard", () => {
         "lock-cli-batch",
         "lock-cli-hash",
         "lock-cli-tx",
-      );
+      ]);
       db.close();
 
       await Bun.$`bun run src/cli.ts system backup-lock --company ${company} --enforce true --grace-days 0`.quiet();

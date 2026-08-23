@@ -236,8 +236,7 @@ export function postInvoiceLateInterestToLedger(db: Database, input: PostInvoice
 
       db.run(
         `INSERT INTO invoice_interest_postings (interest_claim_id, journal_entry_id) VALUES (?, ?)`,
-        claim.id,
-        journal.entryId,
+        [claim.id, journal.entryId!],
       );
 
       insertAuditLog(db, {

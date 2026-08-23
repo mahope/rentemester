@@ -133,23 +133,23 @@ describe("invoice payments", () => {
 
     expect(() => db.run(
       `INSERT INTO invoice_payments (invoice_document_id, payment_date, amount, currency, note)
-       VALUES (?, ?, ?, 'DKK', ?)`,
+       VALUES (?, ?, ?, 'DKK', ?)`, [
       issued.documentId!,
       "2026-05-20",
       1000,
       "Manual entry"
-    )).toThrow("invoice payments must reference a journal entry");
+    ])).toThrow("invoice payments must reference a journal entry");
 
     db.exec("PRAGMA foreign_keys = OFF");
     db.run(
       `INSERT INTO invoice_payments (invoice_document_id, payment_date, amount, currency, journal_entry_id, note)
-       VALUES (?, ?, ?, 'DKK', ?, ?)`,
+       VALUES (?, ?, ?, 'DKK', ?, ?)`, [
       issued.documentId!,
       "2026-05-20",
       1000,
       999999,
       "Broken legacy import"
-    );
+    ]);
     db.exec("PRAGMA foreign_keys = ON");
 
     const status = getInvoiceStatus(db, issued.documentId!);
@@ -305,14 +305,14 @@ describe("invoice payments", () => {
     // payment linked to the invoice booking entry, then a 250 DKK refund of it.
     db.run(
       `INSERT INTO invoice_payments (invoice_document_id, journal_entry_id, payment_date, amount, currency, note)
-       VALUES (?, ?, '2026-05-21', 250, 'DKK', 'Overpayment')`,
+       VALUES (?, ?, '2026-05-21', 250, 'DKK', 'Overpayment')`, [
       issued.documentId!, booking.entryId!,
-    );
+    ]);
     db.run(
       `INSERT INTO invoice_refunds (invoice_document_id, refund_date, amount, currency, note)
-       VALUES (?, '2026-05-22', 250, 'DKK', 'Overpayment refund')`,
+       VALUES (?, '2026-05-22', 250, 'DKK', 'Overpayment refund')`, [
       issued.documentId!,
-    );
+    ]);
 
     const status = getInvoiceStatus(db, issued.documentId!, "2026-05-25");
     expect(status.ok).toBe(true);

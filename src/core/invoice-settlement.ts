@@ -1,6 +1,7 @@
 import type { Database } from "bun:sqlite";
 import { applyInvoicePayment, getInvoiceStatus } from "./invoice-payments";
 import { postJournalEntry, type JournalPostResult } from "./ledger";
+import { asJournalEntryId } from "./ids";
 import { insertAuditLog } from "./actor";
 import { roundDkk } from "./money";
 
@@ -44,7 +45,7 @@ function getIncomingBankTransaction(db: Database, input: SettleInvoiceFromBankIn
         .query(
           `SELECT id, transaction_date, amount, currency, amount_dkk, fx_rate_to_dkk, text, reference FROM bank_transactions WHERE reference = ? ORDER BY id DESC LIMIT 1`,
         )
-        .get(input.bankTransactionReference)) as {
+        .get(input.bankTransactionReference!)) as {
     id: number;
     transaction_date: string;
     amount: number;
@@ -210,7 +211,7 @@ export function settleInvoiceFromBank(db: Database, input: SettleInvoiceFromBank
 
       return {
         ok: true,
-        entryId: journalEntryId,
+        entryId: journalEntryId === undefined ? undefined : asJournalEntryId(journalEntryId),
         paymentId,
         claimPaymentId,
         principalAmount,

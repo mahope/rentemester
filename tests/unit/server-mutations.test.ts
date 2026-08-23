@@ -67,7 +67,7 @@ function seedException(ws: string, slug: string, message = "Banktransaktion mang
 function insertBankActivity(ws: string, slug: string, date: string, ref: string): void {
   withLedger(ws, slug, (db) => {
     db.run(
-      "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)",
+      "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)", [
       date,
       date,
       "Activity",
@@ -76,7 +76,7 @@ function insertBankActivity(ws: string, slug: string, date: string, ref: string)
       `batch-${ref}`,
       `hash-${ref}`,
       `tx-${ref}`,
-    );
+    ]);
   });
 }
 

@@ -124,7 +124,7 @@ export function register(dispatch: CommandDispatch): void {
     if (!result.ok) process.exit(1);
   });
 
-  dispatch.on("bank", "suggest-matches", (ctx) => {
+  dispatch.on("bank", "suggest-matches", (ctx: CommandContext) => {
     const bankTransactionId = ctx.parseOptionalNumber("--bank-transaction-id");
     const max = ctx.parseOptionalNumber("--max");
     if (!bankTransactionId.ok) ctx.fatal(bankTransactionId.error);

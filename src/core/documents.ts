@@ -157,7 +157,7 @@ export function validateDocumentMetadata(metadata: DocumentMetadata): DocumentVa
   const documentType = metadata.documentType ?? "purchase_sale";
   const exemptionCode = metadata.exemptionCode ?? null;
   const currency = (metadata.currency ?? "DKK").trim().toUpperCase();
-  const appliedRules = [RULES.STORAGE, RULES.INTEGRITY];
+  const appliedRules: Array<(typeof RULES)[keyof typeof RULES]> = [RULES.STORAGE, RULES.INTEGRITY];
 
   if (!hasText(metadata.source)) errors.push("source is required");
   if (!/^[A-Z]{3}$/.test(currency)) errors.push("currency must be a 3-letter ISO code");

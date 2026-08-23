@@ -29,7 +29,7 @@ describe("backup archive", () => {
       expect(existsSync(packed.sha256Path!)).toBe(true);
 
       const archive = readFileSync(packed.archivePath!);
-      expect(createHash("sha256").update(archive).digest("hex")).toBe(packed.archiveSha256);
+      expect(createHash("sha256").update(archive).digest("hex")).toBe(packed.archiveSha256!);
       expect(readFileSync(packed.sha256Path!, "utf8")).toContain(packed.archiveSha256!);
     } finally {
       db.close();

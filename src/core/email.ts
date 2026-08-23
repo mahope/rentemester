@@ -375,15 +375,17 @@ export function sendInvoiceEmail(
        (invoice_document_id, invoice_no, kind, recipient, sender, subject,
         message_id, body_sha256, smtp_host)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    input.invoiceDocumentId,
-    invoiceNumber,
-    input.kind,
-    recipient,
-    input.smtp.fromAddress.trim(),
-    message.subject,
-    message.messageId,
-    bodySha256,
-    input.smtp.host.trim(),
+    [
+      input.invoiceDocumentId,
+      invoiceNumber,
+      input.kind,
+      recipient,
+      input.smtp.fromAddress.trim(),
+      message.subject,
+      message.messageId,
+      bodySha256,
+      input.smtp.host.trim(),
+    ],
   );
 
   insertAuditLog(db, {

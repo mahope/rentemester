@@ -651,18 +651,20 @@ export function submitPublicEInvoicePeppol(
         access_point_id, receiver_endpoint_id, oioubl_sha256, envelope_sha256,
         envelope_xml, status, transmission_id, acknowledged_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    input.invoiceDocumentId,
-    invoiceNumber,
-    idempotencyKey,
-    submissionReference,
-    input.accessPoint.accessPointId.trim(),
-    receiver,
-    oioubl.sha256,
-    envelopeSha256,
-    envelope,
-    status,
-    input.acknowledgement?.transmissionId ?? null,
-    input.acknowledgement?.acknowledgedAt ?? null,
+    [
+      input.invoiceDocumentId,
+      invoiceNumber,
+      idempotencyKey,
+      submissionReference,
+      input.accessPoint.accessPointId.trim(),
+      receiver,
+      oioubl.sha256,
+      envelopeSha256,
+      envelope,
+      status,
+      input.acknowledgement?.transmissionId ?? null,
+      input.acknowledgement?.acknowledgedAt ?? null,
+    ],
   );
 
   insertAuditLog(db, {

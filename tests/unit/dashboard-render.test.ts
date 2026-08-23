@@ -9,6 +9,7 @@ import {
   renderDashboard,
   type DashboardInput,
 } from "../../src/core/dashboard";
+import type { CompanySettings } from "../../src/core/company";
 
 const REPO_ROOT = process.cwd();
 const SNAPSHOT_PATH = join(REPO_ROOT, "tests", "snapshots", "dashboard.html");
@@ -33,7 +34,18 @@ function buildFixture(): DashboardInput {
       cvr: "DK12345678",
       fiscalYearStartMonth: 1,
       fiscalYearLabelStrategy: "end-year",
-    },
+      address: null,
+      postalCode: null,
+      city: null,
+      companyForm: null,
+      industryCode: null,
+      industryText: null,
+      cvrStatus: null,
+      auditWaived: null,
+      cvrSyncedAt: null,
+      paymentTermsDays: 14,
+      vatPeriodType: "quarter",
+    } satisfies CompanySettings,
     invoices: {
       ok: true,
       count: 3,

@@ -12,7 +12,7 @@
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { Database } from "bun:sqlite";
+import type { Database, SQLQueryBindings } from "bun:sqlite";
 import { z } from "zod";
 import { existsSync } from "node:fs";
 import { isAbsolute, resolve, sep } from "node:path";
@@ -190,8 +190,9 @@ export function withCompanyDbConfirmed<TArgs extends { company: string; confirm?
   server: McpServer,
   toolName: string,
   handler: (ctx: { db: Database; actor: McpActor; args: TArgs }) => Envelope | Promise<Envelope>,
-): (args: TArgs) => Promise<ReturnType<typeof envelopeToCallResult>> {
-  return async (args) => {
+): (args: unknown) => Promise<ReturnType<typeof envelopeToCallResult>> {
+  return async (rawArgs) => {
+    const args = rawArgs as TArgs;
     if (args?.confirm !== true) {
       return envelopeToCallResult(
         errorEnvelope(`confirm: true required for write tool ${toolName}`),
@@ -301,7 +302,7 @@ export function resolveJournalEntryId(
       .query(
         `SELECT id FROM journal_entries WHERE text = ? ${dateClause} ${docClause} ORDER BY id DESC LIMIT 1`,
       )
-      .get(...(params as [unknown])) as { id: number } | null;
+      .get(...(params as SQLQueryBindings[])) as { id: number } | null;
     if (row) return asJournalEntryId(row.id);
   }
   return null;

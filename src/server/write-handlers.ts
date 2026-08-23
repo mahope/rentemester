@@ -209,16 +209,26 @@ export async function handleBankImport(
 
   // The core `BankImportResult` shape is echoed back so the UI can report the
   // batch id, the imported/skipped counts and any balance warnings.
+  const importResult = result as {
+    importBatchId?: number;
+    imported?: number;
+    skippedDuplicates?: number;
+    skippedDuplicateRows?: unknown[];
+    bankAccountSlug?: string;
+    profile?: string | null;
+    balanceWarnings?: unknown[];
+    exceptionsCreated?: number;
+  };
   return okResponse({
     import: {
-      importBatchId: result.importBatchId,
-      imported: result.imported ?? 0,
-      skippedDuplicates: result.skippedDuplicates ?? 0,
-      skippedDuplicateRows: result.skippedDuplicateRows ?? [],
-      bankAccountSlug: result.bankAccountSlug,
-      profile: result.profile,
-      balanceWarnings: result.balanceWarnings ?? [],
-      exceptionsCreated: result.exceptionsCreated ?? 0,
+      importBatchId: importResult.importBatchId,
+      imported: importResult.imported ?? 0,
+      skippedDuplicates: importResult.skippedDuplicates ?? 0,
+      skippedDuplicateRows: importResult.skippedDuplicateRows ?? [],
+      bankAccountSlug: importResult.bankAccountSlug,
+      profile: importResult.profile,
+      balanceWarnings: importResult.balanceWarnings ?? [],
+      exceptionsCreated: importResult.exceptionsCreated ?? 0,
     },
   });
 }

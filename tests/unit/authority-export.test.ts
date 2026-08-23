@@ -62,14 +62,14 @@ describe("authority export", () => {
 
     db.run(
       `INSERT INTO exceptions (type, severity, status, related_document_id, message, required_action, created_at)
-       VALUES ('missing_metadata', 'high', 'open', ?, 'Missing detail', 'Review source document', '2026-04-30 23:59:59')`,
+       VALUES ('missing_metadata', 'high', 'open', ?, 'Missing detail', 'Review source document', '2026-04-30 23:59:59')`, [
       ingested.documentId!,
-    );
+    ]);
     db.run(
       `INSERT INTO exceptions (type, severity, status, related_document_id, message, required_action, created_at)
-       VALUES ('period_issue', 'medium', 'open', ?, 'Needs period review', 'Check period classification', '2026-05-10 12:00:00')`,
+       VALUES ('period_issue', 'medium', 'open', ?, 'Needs period review', 'Check period classification', '2026-05-10 12:00:00')`, [
       ingested.documentId!,
-    );
+    ]);
 
     const first = exportAuthorityPackage(db, companyRoot, {
       periodStart,
