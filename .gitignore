@@ -27,3 +27,6 @@ app/dist/
 
 # Local scratch — private migration data, kept out of git
 helheim/
+
+# Generated invoice artifacts from local runs in repo root - never commit
+/irrelevant/

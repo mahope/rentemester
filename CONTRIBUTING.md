@@ -71,6 +71,8 @@ Tilføj en unit-, CLI- eller smoke-regression der fejler på den nuværende kode
 bun test path/to/your.test.ts    # din test først
 bun test                          # alt grønt
 bun run smoke                     # frisk /tmp/rentemester-smoke
+bun run typecheck                 # tsc --noEmit mod rod-tsconfig
+bun run lint                      # biome (src/, tests/, scripts/)
 git diff --check                  # ingen trailing whitespace
 ```
 

@@ -40,7 +40,11 @@ Findes ingen af delene, fejler kommandoen før den rører virksomhedsdata.
 hvilken kanal mutationen kom igennem; standard `rentemester-cli`).
 
 For `system restore-backup` håndhæves politikken mod `--target-company`-stien,
-ikke `--company`, fordi det er dér data skrives.
+ikke `--company`, fordi det er dér data skrives. Én undtagelse (#283): et
+restore-mål der endnu ikke findes (frisk restore) har ingen
+`config/policy.yaml` at kontrole mod, så allowlist-tjekket springes over —
+det kanoniske format kræves dog stadig, og restore ind i en eksisterende
+virksomhed håndhæves fuldt.
 
 ## 2. Exit-koder
 
