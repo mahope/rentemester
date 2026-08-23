@@ -37,10 +37,12 @@ Every loop starts with one narrow hypothesis and ends with a pushed commit or an
    - Run `git diff --check` before commit.
 
    **Smoke wall-clock budget**: smoke currently completes in ~2 seconds. To
-   catch performance regressions before they bog down the build loop, CI uses
-   `bun run smoke:budget`, which wraps `bun run smoke` and fails if wall-clock
+   catch performance regressions before they bog down the build loop,
+   `bun run smoke:budget` wraps `bun run smoke` and fails if wall-clock
    exceeds **30 seconds** (override locally with `SMOKE_BUDGET_SECONDS=<n>`).
-   The plain `bun run smoke` target stays unchanged for fast local runs.
+   CI (`smoke.yml`) runs the plain `bun run smoke`, reports the measured
+   wall-clock duration in the job summary (budget tracking, issue #88), and
+   does not fail on duration yet.
 
 6. **Review the diff before commit**
    - Confirm no generated company data, secrets, temp files, or half-built features are included.

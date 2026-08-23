@@ -3,9 +3,10 @@
 Før du kalder `rentemester`-CLI'en muterende, læs `docs/cli-contract.md`. Kort:
 
 - **Actor-politik**: enhver muterende kommando kræver en actor — `--actor
-  <user:...|agent:...|system:...>` (skal stå i `config/policy.yaml`), eller en
-  `USER`/`LOGNAME`/`RENTEMESTER_AGENT`/`OPENCLAW_AGENT` miljøvariabel. Uden
-  actor afvises kommandoen med `actor required for mutations`.
+  <user:...|agent:...|system:...>` eller `RENTEMESTER_ACTOR` (skal stå i
+  `config/policy.yaml`), eller en udledt `USER`/`LOGNAME`/`RENTEMESTER_USER`/
+  `RENTEMESTER_AGENT`/`OPENCLAW_AGENT` miljøvariabel. Uden actor afvises
+  kommandoen med `actor required for mutations`.
 - **Exit-koder**: `0` = succes (`ok:true`); `2` = parse-/brugsfejl (forkert
   kald — ret flag/argumenter); `1` = forretnings-/ledger-afvisning (kaldet var
   korrekt, men resultatet er `ok:false` — læs `errors[]`).
