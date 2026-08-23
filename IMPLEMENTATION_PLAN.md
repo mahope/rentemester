@@ -7,9 +7,9 @@ deploys — men revisionskritisk kode.
 ## Gate-definition (fra docs/build-loop.md + .github/workflows)
 
 1. Fokuserede tests → 2. `bun test` → 3. `bun run smoke` (frisk /tmp/rentemester-smoke) →
-4. `git diff --check`. CI kører `test.yml` (`bun test`) og `smoke.yml` (`bun run smoke`;
-   budget-varianten `smoke:budget` fejler over 30s). Typecheck/lint findes IKKE som scripts
-   endnu — det er en planlagt opgave.
+4. `bun run typecheck` (tilføjet 2026-08-23) → 5. `git diff --check`. CI kører `test.yml`
+(`bun test`) og `smoke.yml` (`bun run smoke`; budget-varianten `smoke:budget` fejler over
+30s). Lint findes IKKE som script endnu — planlagt opgave 3.
 - bun ligger i `~/.bun/bin` (ikke på PATH i alle shells): `export PATH="$HOME/.bun/bin:$PATH"`.
 
 ## Repo-kort (research 2026-08-22)
@@ -71,13 +71,27 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
   `git diff --check` ren. Bemærk: to tests fik dynamiske (ikke hardcodede) assertions —
   semantisk intent bevaret, reviewet som del af diffen.
 
-### 2. [P1] I GANG (2026-08-23) — Typecheck som gate: rod-tsconfig-excludes + ryd op i src/
-- Excludér `app/`, `www/`, `examples/` fra rod-tsconfigen (de har egne configs/bygges med
-  vite). Fiks derefter de ~84 reelle strict-fejl i `src/` (og 107 i `tests/`) trinvis.
-- Tilføj `"typecheck": "tsc --noEmit"` script; optag den i gate-definitionen her når grøn.
-- Føj `package-lock.json` til `.gitignore`.
-- **Accept**: root `tsc --noEmit` = 0 fejl for src/tests; app/www bygger stadig med egne
-  configs; `bun test` stadig grøn.
+### 2. [P1] FÆRDIG — Typecheck som gate: rod-tsconfig-excludes + ryd op i src/
+- **Løst 2026-08-23** (commit ce74003):
+  - Rod-tsconfig excluderer nu `app/`, `www/`, `examples/` (egne configs/builds).
+  - `"typecheck": "tsc --noEmit"` script + `typescript@5.9.3` i devDependencies.
+  - `package-lock.json` i `.gitignore`.
+  - Nyt `src/bun-sqlite.d.ts`: udvider bun-types 1.4.0 med `transaction(fn,
+    { immediate })`-options som koden allerede brugte runtime.
+  - src/-fixes (alle type-niveau, runtime-uændret): array-bindings til `db.run`
+    (ny signatur i bun-types kræver ÉN array), `ok: true as const`-diskriminering,
+    generiske `getCurrent<any>`, non-null assertions bag eksisterende guards,
+    `withCockpitActor`-returtype præciseret.
+  - tests/-fixes (~106 fejl): db.run-array-bindings, `InvoicePayload`-typede
+    payload-hjælpere (3 filer), branded `invoiceNumber` sammenlignet via
+    template-literal, `Bun.Subprocess<"pipe","pipe","pipe">`-felttyper i de to
+    MCP-testklienter, `parse!()` for valgfrit SourceParser.parse, fetch-mocks
+    `as unknown as typeof fetch` (som cvr-lookup.test.ts allerede), fuldt
+    CompanySettings-fixture, `!` på optional felter.
+- **Accept verificeret**: root `bun run typecheck` = 0 fejl; app/ bygger med egen
+  config (`vite build`, efter lokal `bun install` — deps var ikke installeret);
+  www/ bygger med astro; `bun test` = 1163/1163 grønne; `bun run smoke` exit 0;
+  `git diff --check` ren.
 
 ### 3. [P1] Lint-setup
 - Vælg én linter (biome anbefalet: TS-native, hurtig, minimal opsætning; alternativ oxlint).
@@ -115,5 +129,16 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
   (c) `selectVatPeriod` capper ved "nutids"-perioden, så #272-scenariet (afskrivning i
   senere kvartal) stadig er meningsfuldt med dynamiske datoer. Næste: opgave 2
   (typecheck-gate; inkl. `package-lock.json` → `.gitignore`).
+- 2026-08-23: Opgave 2 løst (ce74003). Fund undervejs:
+  - bun-types 1.4.0-signaturen `run(sql, ...bindings: ParamsType[])` med
+    `ParamsType extends SQLQueryBindings[]` kræver ÉN array pr. kald — flad variadic
+    (`run(sql, a, b)`) fejler både types OG runtime ("expected 2 values, received 1").
+    Alle db.run-kald bruger nu `run(sql, [a, b])`.
+  - bun-types 1.4.0 `fetch` har en påkrævet `preconnect`-metode → simple async-mocks
+    typechecker ikke længere; repoets eksisterende idiom er `as unknown as typeof fetch`.
+  - app/ og www/ havde slet ikke installeret node_modules lokalt — begge bygger rent
+    efter `bun install` (app: tsc + vite; www: astro build, 73 sider).
+  - CI kører IKKE typecheck endnu (kun test.yml/smoke.yml). Overvej at tilføje et
+    typecheck-job som del af opgave 6 (docs-sync) eller separat.
 
-## STATUS: AKTIV — næste iteration starter opgave 2 (typecheck-gate).
+## STATUS: AKTIV — næste iteration starter opgave 3 (lint-setup).
