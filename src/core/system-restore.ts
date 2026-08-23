@@ -1,7 +1,7 @@
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, normalize, resolve } from "node:path";
-import { createHash, createHmac, createPublicKey, randomBytes, timingSafeEqual, verify as cryptoVerify } from "node:crypto";
+import { createHash, createHmac, createPublicKey, randomBytes, timingSafeEqual, verify as cryptoVerify, type KeyObject } from "node:crypto";
 import { openDb } from "./db";
 import { verifyAuditChain } from "./ledger";
 import { companyPaths, ensureCompanyDirs } from "./paths";
@@ -165,7 +165,7 @@ function verifyManifestEd25519(
     return { error: "ed25519 public key not found; pass publicKeyPath or restore from a backup that ships the key under config/backup-manifest.pub" };
   }
   const pem = readFileSync(publicKeyPath, "utf8");
-  let key;
+  let key: KeyObject;
   try {
     key = createPublicKey(pem);
   } catch (error) {

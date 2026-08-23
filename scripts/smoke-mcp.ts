@@ -16,7 +16,7 @@
  * Exit non-zero hvis nogen step fejler.
  */
 
-import { mkdtempSync, rmSync, writeFileSync, existsSync } from "node:fs";
+import { mkdtempSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 

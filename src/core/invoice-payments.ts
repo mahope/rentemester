@@ -114,7 +114,7 @@ export type InvoiceStatusResult = {
 
 const RULE_ID = "DK-INVOICE-PAYMENT-001";
 const CORRECTION_BALANCE_RULE_ID = "DK-INVOICE-CORRECTION-BALANCE-001";
-const DUE_DATE_RULE_ID = "DK-INVOICE-DUE-DATE-001";
+const _DUE_DATE_RULE_ID = "DK-INVOICE-DUE-DATE-001";
 
 function defaultComparisonDate(invoiceDate?: string, effectiveDueDate?: string) {
   return effectiveDueDate ?? invoiceDate ?? "1970-01-01";

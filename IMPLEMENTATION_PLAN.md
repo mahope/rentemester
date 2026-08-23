@@ -7,9 +7,10 @@ deploys — men revisionskritisk kode.
 ## Gate-definition (fra docs/build-loop.md + .github/workflows)
 
 1. Fokuserede tests → 2. `bun test` → 3. `bun run smoke` (frisk /tmp/rentemester-smoke) →
-4. `bun run typecheck` (tilføjet 2026-08-23) → 5. `git diff --check`. CI kører `test.yml`
-(`bun test`) og `smoke.yml` (`bun run smoke`; budget-varianten `smoke:budget` fejler over
-30s). Lint findes IKKE som script endnu — planlagt opgave 3.
+4. `bun run typecheck` (tilføjet 2026-08-23) → 5. `bun run lint` (tilføjet 2026-08-23,
+biome) → 6. `git diff --check`. CI kører `test.yml` (`bun test`) og `smoke.yml`
+(`bun run smoke`; budget-varianten `smoke:budget` fejler over 30s). Typecheck og lint
+kører IKKE i CI endnu (noteret under opgave 6).
 - bun ligger i `~/.bun/bin` (ikke på PATH i alle shells): `export PATH="$HOME/.bun/bin:$PATH"`.
 
 ## Repo-kort (research 2026-08-22)
@@ -93,11 +94,27 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
   www/ bygger med astro; `bun test` = 1163/1163 grønne; `bun run smoke` exit 0;
   `git diff --check` ren.
 
-### 3. [P1] Lint-setup
-- Vælg én linter (biome anbefalet: TS-native, hurtig, minimal opsætning; alternativ oxlint).
-- Start konservativ (correctness-regler, ingen stilistik-omskrivninger); fix eller suppress
-  med bevidsthed. `"lint"` script + i gaten når grøn.
-- **Accept**: `bun run lint` exit 0 på hele repoet; dokumenteret i docs/build-loop.md.
+### 3. [P1] FÆRDIG — Lint-setup
+- **Løst 2026-08-23** (arbejdet fra afbrudt iteration færdiggjort + merge):
+  - `@biomejs/biome` 2.x som devDependency; `biome.json` med recommended-preset,
+    correctness-regler på error, formatter FRA (ingen stilistik-omskrivninger —
+    repoet har ingen ensartet formatering, og den diskussion tilhører Mads),
+    scope: `src/`, `tests/`, `scripts/` (app/www/examples har egen toolchain).
+  - `"lint": "biome lint --config-path=biome.json src/ tests/ scripts/"`.
+  - ~30 filers fixes: ubrugte imports fjernet, ubrugte parametre/konstanter
+    prefixed `_`, eksplicitte type-annotationer hvor inference brød regler,
+    escapede anførselstegn i template-literals ryddet, biome-ignore med begrundelse
+    på 2 bevidste idiomer (while-re.exec, transaktion-for).
+  - Semantik-verificeret punktvis: de 3 fjernede `case "quarter":`-labels faldt
+    alle igennem til identiske `default`-grene (død kode); WINANSI-tabel i
+    invoice-pdf.ts er kun hex→decimal-literaler (identiske værdier).
+  - Rettede fejl fra den afbrudte iteration: `KeyObject` var annoteret men ikke
+    importeret i system-restore.ts → typecheck rød; import tilføjet.
+  - docs/build-loop.md opdateret: gate-trin, main-krav og definition-of-done
+    nævner nu `bun run typecheck` + `bun run lint`.
+- **Accept verificeret**: `bun run lint` exit 0 (334 filer); `bun test` =
+  1163/1163 grønne; `bun run smoke` exit 0; `bun run typecheck` = 0 fejl;
+  `git diff --check` ren.
 
 ### 4. [P2] Testdækningsgab i kerneflows (randtilfælde)
 - Verificér/fald udbyg: øre-afrunding (money.ts), periodegrænser (periods/fiscal-year over
@@ -141,4 +158,14 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
   - CI kører IKKE typecheck endnu (kun test.yml/smoke.yml). Overvej at tilføje et
     typecheck-job som del af opgave 6 (docs-sync) eller separat.
 
-## STATUS: AKTIV — næste iteration starter opgave 3 (lint-setup).
+- 2026-08-23: Opgave 3 løst. Fund undervejs:
+  - Biome recommended-preset var nok til at rense 334 filer med ~30 filers
+    smårettelser — ingen dybe problemer. De eneste semantisk interessante fund:
+    duplikerede switch-labels (død kode) i periods.ts og en ubrugt WINANSI-
+    parameter i invoice-pdf.ts.
+  - Den afbrudte iteration efterlod typecheck rød (manglende `KeyObject`-import)
+    — lektie: kør FULD gate før iterationen afbrydes, også halvvejs.
+  - `noForEach`/`useOptionalChain` m.fl. er slået fra i config for at undgå
+    kosmetiske omskrivninger; correctness-reglerne står på error.
+
+## STATUS: AKTIV — næste iteration starter opgave 4 (testdækningsgab i kerneflows).

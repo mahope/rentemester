@@ -176,7 +176,7 @@ function parseHumanInvoiceLines(raw: string | undefined): ParsedLines {
     const parts = segment.split("|").map((part) => part.trim());
     if (parts.length !== 3) {
       errors.push(
-        `line ${index + 1} (\"${segment}\") must have exactly 3 fields: description|quantity|unitPrice`,
+        `line ${index + 1} ("${segment}") must have exactly 3 fields: description|quantity|unitPrice`,
       );
       return;
     }
@@ -184,10 +184,10 @@ function parseHumanInvoiceLines(raw: string | undefined): ParsedLines {
     const quantity = Number(quantityText);
     const unitPriceExVat = Number(unitPriceText);
     if (quantityText === "" || !Number.isFinite(quantity)) {
-      errors.push(`line ${index + 1} quantity \"${quantityText}\" must be a number`);
+      errors.push(`line ${index + 1} quantity "${quantityText}" must be a number`);
     }
     if (unitPriceText === "" || !Number.isFinite(unitPriceExVat)) {
-      errors.push(`line ${index + 1} unit price \"${unitPriceText}\" must be a number`);
+      errors.push(`line ${index + 1} unit price "${unitPriceText}" must be a number`);
     }
     lines.push({ description, quantity, unitPriceExVat });
   });

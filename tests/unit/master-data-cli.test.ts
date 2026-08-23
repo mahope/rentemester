@@ -1,6 +1,6 @@
 // Tests: src/cli/customer.ts, src/cli/vendor.ts, src/cli.ts (customer/vendor master-data CLI)
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { companyPaths } from "../../src/core/paths";

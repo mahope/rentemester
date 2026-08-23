@@ -104,6 +104,7 @@ function tokenize(xml: string): Token[] {
       const attrs: Record<string, string> = {};
       const attrRe = /([^\s=]+)\s*=\s*("([^"]*)"|'([^']*)')/g;
       let m: RegExpExecArray | null;
+      // biome-ignore lint/suspicious/noAssignInExpressions: standard while-re.exec idiom
       while ((m = attrRe.exec(body.slice(name.length))) !== null) {
         attrs[m[1]] = decodeEntities(m[3] ?? m[4] ?? "");
       }

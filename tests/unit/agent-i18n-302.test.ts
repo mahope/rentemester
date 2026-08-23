@@ -16,7 +16,7 @@ import { bookExpenseFromBank } from "../../src/core/expense-booking";
 import { initialiseCompanyVolume } from "../../src/core/company";
 import { runAgentLoop } from "../../src/agent/loop";
 
-const DEMO_DIR = join(import.meta.dir, "..", "..", "examples", "agent-demo");
+const _DEMO_DIR = join(import.meta.dir, "..", "..", "examples", "agent-demo");
 
 describe("#302 — expense posting text is fully Danish", () => {
   test("the default posting text and the per-line fallback are Danish, not English", () => {

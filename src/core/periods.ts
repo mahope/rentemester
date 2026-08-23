@@ -39,7 +39,6 @@ export function vatPeriodTypeLabelDa(type: VatPeriodType): string {
       return "måned";
     case "half-year":
       return "halvår";
-    case "quarter":
     default:
       return "kvartal";
   }
@@ -52,7 +51,6 @@ function vatPeriodMonthSpan(type: VatPeriodType): number {
       return 1;
     case "half-year":
       return 6;
-    case "quarter":
     default:
       return 3;
   }
@@ -125,7 +123,6 @@ export function vatPeriodLabel(window: VatPeriodWindow): string {
       const half = startMonth <= 6 ? 1 : 2;
       return `${half}. halvår ${year}`;
     }
-    case "quarter":
     default: {
       const quarter = Math.floor((startMonth - 1) / 3) + 1;
       return `Q${quarter} ${year}`;
