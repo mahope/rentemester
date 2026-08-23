@@ -116,12 +116,42 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
   1163/1163 grønne; `bun run smoke` exit 0; `bun run typecheck` = 0 fejl;
   `git diff --check` ren.
 
-### 4. [P2] Testdækningsgab i kerneflows (randtilfælde)
-- Verificér/fald udbyg: øre-afrunding (money.ts), periodegrænser (periods/fiscal-year over
-  årsksifte), hash-kæde tamper-detection (skal allerede findes i ledger-hardening —
-  verificér og uddyb ved behov), interest day-count over månedsskift/skudår, momsperiode-
-  grænser. Skriv fejlende proof først iflg. docs/build-loop.md.
-- **Accept**: hver ny sag har negativ test ("hvad SKAL blokeres"); `bun test` grøn.
+### 4. [P2] FÆRDIG — Testdækningsgab i kerneflows (randtilfælde)
+- **Løst 2026-08-23** (commit 9a103df): 6 nye testfiler, 70 nye tests (1233 totalt,
+  op fra 1163). Alle skrevet som "fejlende proof" — de testede koden var allerede
+  korrekt, så de fungerede som regression guards, ikke bugfixes. Ingen src/-ændringer.
+  - **money-edge-cases.test.ts** (31 tests): roundDiv med fortegn/nul/overflow,
+    toOre/fromOre-konvertering (NaN-throw, bigint round-trip), formatAmount/null-input,
+    formatDkk/currency, formatKronerDa/DK-format/non-finite, compareDkk/equalsDkk/absDkk,
+    addDkk/subtractDkk/float-drift, multiplyDkk/fortegn/nul, percentOfDkk/grænser,
+    accrueInterestDkk/365-dage/nul-input/små-beløb, normalizeCurrency.
+  - **fiscal-year-edge-cases.test.ts** (12 tests): kalenderår (startMonth=1),
+    offset-start (2/7/12), label-strategier (start-year/end-year/span), boundary-datoer
+    (første/sidste dag i regnskabsåret), invalid-date-throw.
+  - **vat-period-type-edge-cases.test.ts** (12 tests): Q4-kvartal med næste-års
+    deadline, december-måned med marts-deadline, skudårs-februar (29. vs 28.),
+    hver kadence for 31. december, alle 12 måneders danske labels, vatPeriodsForYear
+    i skudår.
+  - **audit-verify-edge-cases.test.ts** (5 tests): single-field tampering på
+    transaction_date, single-field tampering på text, line-amount tampering (balanced),
+    middle truncation (entry fjernet), hashEntry-producerer forskellig hash ved
+    line-reordering.
+  - **invoice-interest-edge-cases.test.ts** (6 tests): renter over skudårs-februar
+    (29 dage), over årsskifte (dec→jan), over månedsskifte (31. mar→1. apr),
+    negativ referencesats (DK-historisk), referencesats=0, fuld cycle (register+post+
+    verify) med skudår.
+  - **vat-report-edge-cases.test.ts** (4 tests): tom periode (zero totals),
+    transaktion på præcis periodestart (inkluderet), på præcis periodslut
+    (inkluderet), dagen før periodestart (ekskluderet).
+- **Fund undervejs**: 
+  - `journal_lines` har ingen `ordinal`-kolonne i SQL — ordinals er kun i hash-
+    computation, ikke persisted → line-reordering testes via hashEntry() direkte.
+  - `postJournalEntry` kræver `documentId` for linjer med vatCode — nødvendiggjorde
+    document-ingest i VAT boundary-tests.
+  - `issueInvoice` auto-tildeler invoiceNumbers sekventielt — manuelle numre afvises
+    hvis de ikke er de næste i rækken.
+- **Accept verificeret**: `bun test` = 1233/1233 grønne; `bun run smoke` exit 0;
+  `bun run typecheck` = 0 fejl; `bun run lint` exit 0; `git diff --check` ren.
 
 ### 5. [P3] Fejlbeskeder + døde stier
 - Gennemgå envelope `ok/errors[]`-konsistens i CLI/MCP-svar; tydeligere beskeder hvor
@@ -168,4 +198,7 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
   - `noForEach`/`useOptionalChain` m.fl. er slået fra i config for at undgå
     kosmetiske omskrivninger; correctness-reglerne står på error.
 
-## STATUS: AKTIV — næste iteration starter opgave 4 (testdækningsgab i kerneflows).
+- 2026-08-23: Opgave 4 løst (9a103df). 70 nye randtilfælde-tests på tværs af 6 filer.
+  Alle gates grønne. Næste: opgave 5 (fejlbeskeder + døde stier).
+
+## STATUS: AKTIV — næste iteration starter opgave 5 (fejlbeskeder + døde stier).
