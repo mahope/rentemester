@@ -103,7 +103,7 @@ export function resolveCompanyArg(raw: string): CompanyArgResolution {
   }
   const resolved = resolve(raw);
   if (!isAbsolute(resolved) || resolved.split(sep).includes("..")) {
-    return { ok: false, error: "company resolved to an unsafe path" };
+    return { ok: false, error: `company path '${raw}' resolved to an absolute path still containing '..' segments — use a direct path or a valid workspace slug` };
   }
   return { ok: true, companyRoot: resolved };
 }
@@ -159,7 +159,7 @@ export function withCompanyDb<TArgs extends { company: string }>(
     if (!existsSync(companyRoot)) {
       console.error(`[mcp:withCompanyDb] company path does not exist: ${companyRoot}`);
       return envelopeToCallResult(
-        errorEnvelope("company path does not exist or is not initialized"),
+        safeErrorEnvelope("withCompanyDb", `company path does not exist: ${companyRoot} — run 'company init' first`),
       );
     }
     const actor = deriveMcpActor(server.server.getClientVersion());

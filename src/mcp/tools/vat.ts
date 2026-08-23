@@ -15,7 +15,7 @@ import {
   type ReverseChargePurchaseInput,
   type RepresentationPurchaseInput,
 } from "../../core/vat";
-import { envelopeShape, wrapCoreResult } from "../envelope";
+import { envelopeShape, errorEnvelope, wrapCoreResult } from "../envelope";
 import { withCompanyDb, withCompanyDbConfirmed, confirmField } from "../tool-runtime";
 
 // All monetary fields below are in kroner — decimal DKK with 2 decimals (NOT øre).
@@ -172,11 +172,7 @@ export function registerVatTools(server: McpServer): void {
           .query(`SELECT id FROM documents WHERE invoice_no = ? ORDER BY id DESC LIMIT 1`)
           .get(invoiceNo) as { id: number } | null;
         if (!row) {
-          return wrapCoreResult({
-            ok: false,
-            errors: [`Could not resolve document for invoiceNo ${invoiceNo}`],
-            appliedRules: [],
-          });
+          return errorEnvelope(`No document found with invoiceNo=${invoiceNo} in the documents table`);
         }
         payload.documentId = row.id;
       }

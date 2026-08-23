@@ -365,7 +365,7 @@ export function sendInvoiceEmail(
       messageId: message.messageId,
       duplicate: false,
       appliedRules: [RULE_ID],
-      errors: [`SMTP transport failed: ${transportResult.error ?? "unknown error"}`],
+      errors: [`SMTP transport (host: ${input.smtp.host}) failed for invoice ${invoiceNumber}: ${transportResult.error ?? "unknown error"}`],
     };
   }
 

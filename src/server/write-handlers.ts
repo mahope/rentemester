@@ -551,7 +551,7 @@ export async function handleInvoiceIssue(
       // the buyer name/address/VAT from the registered customer.
       const resolved = resolveInvoiceMasterData(ctx.db, payload, { customerId });
       if (!resolved.ok) {
-        return { ok: false, errors: resolved.errors ?? ["master-data resolution failed"] };
+        return { ok: false, errors: resolved.errors ?? ["could not resolve invoice master data (buyer name, address, VAT) from payload"] };
       }
       const issued = issueInvoice(ctx.db, ctx.companyRoot, resolved.payload);
       return {

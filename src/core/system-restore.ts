@@ -492,7 +492,7 @@ function restoreFromBackupDir(input: RestoreSystemBackupInput): RestoreSystemBac
     renameSync(stagingRoot, resolvedTarget);
   } catch (error) {
     rmSync(stagingRoot, { recursive: true, force: true });
-    return { ok: false, appliedRules: [RULE_ID], errors: [`restore failed: ${String(error)}`] };
+    return { ok: false, appliedRules: [RULE_ID], errors: [`restore of backup ${manifest.backupId} (created ${manifest.createdAt}) to ${input.targetCompanyRoot} failed at atomic-swap stage: ${String(error)}`] };
   }
 
   return {

@@ -67,12 +67,6 @@ export const envelopeShape = {
 } as const;
 
 /**
- * `envelopeShape` som et zod-objekt — praktisk hvis man vil parse/validere
- * en envelope programmatisk.
- */
-export const envelopeOutputSchema = z.object(envelopeShape);
-
-/**
  * Wrapper et kerne-resultat i MCP-envelope-format.
  *
  * Kernens results har ofte shape `{ ok, errors, appliedRules, ...payload }`

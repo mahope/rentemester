@@ -684,7 +684,7 @@ export function evaluateBackupLock(
       daysSinceLatestBackup: status.daysSinceLatestBackup,
       lockAt: null,
       checkedAt: checkedAt ?? "",
-      reason: status.errors[0] ?? "backup status could not be evaluated",
+      reason: status.errors[0] ?? `backup compliance status is unavailable (check backup destination and server logs)`,
       errors: status.errors,
     };
   }

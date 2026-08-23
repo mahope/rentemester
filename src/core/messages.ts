@@ -9,8 +9,6 @@
 // fallback frem for at vise en rå maskinkode. Kataloget er bygget til at vokse
 // trinvist — tilføj nye etiketgrupper her i stedet for at indføre lokale maps.
 
-/** Dansk standard-fallback når en værdi mangler. */
-export const FALLBACK_DASH = "—";
 /** Dansk fallback når en statuskode er ukendt og en kode ikke kan vises rå. */
 export const FALLBACK_UKENDT = "ukendt";
 

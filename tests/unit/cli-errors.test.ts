@@ -103,3 +103,65 @@ describe("CLI input boundary errors", () => {
     expect(stdout).toContain("--actor");
   });
 });
+
+describe("CLI exit code contract (parse error vs business rejection)", () => {
+  test("exit 2 for parse/usage errors — missing flag value", async () => {
+    const proc = Bun.spawn([
+      "bun", "run", "src/cli.ts",
+      "invoice", "validate",
+      "--format", "invalid",
+    ], {
+      cwd: process.cwd(),
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+
+    const stderr = await new Response(proc.stderr).text();
+    const exitCode = await proc.exited;
+
+    expect(exitCode).toBe(2);
+    expect(stderr).toContain("--format must be either json or human");
+  });
+
+  test("exit 2 for unknown commands", async () => {
+    const proc = Bun.spawn(["bun", "run", "src/cli.ts", "unknown_cmd", "--format", "json"], {
+      cwd: process.cwd(),
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+
+    const exitCode = await proc.exited;
+    expect(exitCode).toBe(2);
+  });
+
+  test("exit 1 for business-rule rejection with JSON envelope", async () => {
+    const proc = Bun.spawn([
+      "bun", "run", "src/cli.ts",
+      "invoice", "validate",
+      "--input", "/dev/stdin",
+      "--format", "json",
+    ], {
+      cwd: process.cwd(),
+      stdin: "pipe",
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+
+    (proc.stdin as any).write(JSON.stringify({
+      invoiceType: "full",
+      issueDate: "",
+    }));
+    (proc.stdin as any).end();
+
+    const stdout = await new Response(proc.stdout).text();
+    const exitCode = await proc.exited;
+
+    expect(exitCode).toBe(1);
+    const parsed = JSON.parse(stdout);
+    expect(parsed.ok).toBe(false);
+    expect(Array.isArray(parsed.errors)).toBe(true);
+    expect(parsed.errors.length).toBeGreaterThan(0);
+    // Must contain specific validation errors, not generic messages
+    expect(parsed.errors.some((e: string) => e.startsWith("issueDate"))).toBe(true);
+  });
+});

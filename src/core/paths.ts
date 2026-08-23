@@ -1,8 +1,6 @@
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-export type CompanyPaths = ReturnType<typeof companyPaths>;
-
 export function companyPaths(root: string) {
   return {
     root,

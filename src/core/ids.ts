@@ -42,8 +42,3 @@ export function asDocumentId(value: number): DocumentId {
 export function asJournalEntryId(value: number): JournalEntryId {
   return value as JournalEntryId;
 }
-
-/** Caster en rå rækkenøgle til `BankTransactionId` (typisk ved DB-grænsen). */
-export function asBankTransactionId(value: number): BankTransactionId {
-  return value as BankTransactionId;
-}

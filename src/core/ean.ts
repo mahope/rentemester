@@ -10,7 +10,3 @@ export function normalizeEanNumber(value: unknown) {
   const digitsOnly = trimmed.replace(/\s+/g, "");
   return /^\d{13}$/.test(digitsOnly) ? digitsOnly : null;
 }
-
-export function isValidEanNumber(value: unknown) {
-  return normalizeEanNumber(value) !== null;
-}

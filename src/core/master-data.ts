@@ -6,37 +6,6 @@ import { addDays } from "./dates";
 import { normalizeEanNumber, trimToNull } from "./ean";
 import { lookupCvrCompany, type CvrCompanyInfo, type CvrLookupOptions } from "./cvr";
 
-export type CustomerRecord = {
-  id: number;
-  name: string;
-  address: string | null;
-  vatOrCvr: string | null;
-  email: string | null;
-  phone: string | null;
-  website: string | null;
-  eanNumber: string | null;
-  paymentTermsDays: number;
-  defaultCurrency: string;
-  notes: string | null;
-  archived: number;
-  createdAt: string;
-};
-
-export type VendorRecord = {
-  id: number;
-  name: string;
-  address: string | null;
-  vatOrCvr: string | null;
-  email: string | null;
-  phone: string | null;
-  website: string | null;
-  defaultExpenseAccount: string | null;
-  defaultVatTreatment: string | null;
-  notes: string | null;
-  archived: number;
-  createdAt: string;
-};
-
 export type CreateCustomerInput = {
   name: string;
   address?: string;

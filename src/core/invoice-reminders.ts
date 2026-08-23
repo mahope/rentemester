@@ -60,7 +60,7 @@ export function registerInvoiceReminder(db: Database, input: RegisterInvoiceRemi
   const invoice = db.query(`SELECT id, invoice_no, currency, document_type FROM documents WHERE id = ?`).get(input.invoiceDocumentId) as { id: number; invoice_no: string; currency: string | null; document_type: string } | null;
   if (!invoice) return { ok: false, appliedRules: [RULE_ID], errors: [`invoice document ${input.invoiceDocumentId} does not exist`] };
   if (invoice.document_type !== "issued_invoice") return { ok: false, appliedRules: [RULE_ID], errors: [`document ${input.invoiceDocumentId} is not an issued invoice`] };
-  if ((invoice.currency ?? "DKK") !== "DKK") return { ok: false, appliedRules: [RULE_ID], errors: ["only DKK issued invoices are supported in the current reminder flow"] };
+  if ((invoice.currency ?? "DKK") !== "DKK") return { ok: false, appliedRules: [RULE_ID], errors: [`invoice ${invoice.invoice_no} has currency ${invoice.currency ?? "DKK"}, but reminders are currently only supported for DKK invoices`] };
 
   const feeAmount = roundDkk(input.feeAmount ?? MAX_REMINDER_FEE_DKK);
   if (feeAmount > MAX_REMINDER_FEE_DKK) {

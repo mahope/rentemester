@@ -177,7 +177,7 @@ export function registerDocumentTools(server: McpServer): void {
       confirm?: boolean;
     }>(server, "documents_ingest", ({ db, args }) => {
       const resolved = resolveDocumentMasterData(db, args.metadata, { vendorId: args.vendorId });
-      if (!resolved.ok) return errorEnvelope(resolved.errors ?? ["resolveDocumentMasterData failed"]);
+      if (!resolved.ok) return errorEnvelope(resolved.errors ?? ["could not resolve invoice master data (sender name, CVR, address) from document metadata"]);
       const result = ingestDocument(db, args.company, args.filePath, resolved.metadata, {
         forceDuplicateLogicalIdentity: args.force === true,
       });
