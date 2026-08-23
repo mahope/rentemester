@@ -52,12 +52,24 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
 
 ## Opgaver (prioriteret)
 
-### 1. [P0] I GANG — Reparér tidsafhængige tests + smoke (genopret grøn baseline)
-- **Omfang**: de 12 fejlende tests + `scripts/seed-vies-validation.ts` (+ evt. andre
-  hardkodede seeds). Metode: seed datoer relativt til `new Date()` eller brug eksisterende
-  eksplicitte `asOf`-parametre — ALDRIG ændre semantik i vies/vat/backup-logik.
-- **Accept**: `bun test` = 1163/1163 grønne; `bun run smoke` exit 0; ingen ændrede
-  assertions udover dato-forsyning (diff skal kunne reviewes som ren test-infrastruktur).
+### 1. [P0] FÆRDIG — Reparér tidsafhængige tests + smoke (genopret grøn baseline)
+- **Løst 2026-08-23** (commit 6b5e43f, merge c313735): alle 12 fejlende tests + smoke +
+  agent-demo var samme rod — hardkodede maj-2026-datoer vs. rigtige ur. Rettelser (kun
+  test-infra, `src/` urørt):
+  - VIES-seeds (7 steder i 6 testfiler + `scripts/seed-vies-validation.ts`): hardcodede
+    `validatedAt`/`expiresAt` fjernet → modulets default (nu + 90 dages TTL) bruges.
+  - `system-backups.test.ts` weekly-duty: transaktionsdatoer afledes nu af backup-
+    tidspunktet (±1 dag) i stedet for faste datoer.
+  - `authority-export.test.ts` #1: periode anket omkring "nu" (periodEnd = sidste dag i
+    næste måned som margin), fixture-datoer sættes dynamisk i testen, frist-forventning
+    = requestedAt + 28 dage. Begrundelse: audit_log er append-only (triggers), så rækker
+    kan ikke flyttes i tid — perioden må indeholde "nu".
+  - `server-api.test.ts` #272 ×2: aktivitet dateres "i dag", afskrivning midt i NÆSTE
+    kvartal; kvartalgrænser/frist beregnes uafhængigt i testen (1. i tredje måned efter
+    kvartalslut). Forventningerne er ikke tautologiske (bruger ikke core/periods.ts).
+- **Accept verificeret**: `bun test` = 1163/1163 grønne; `bun run smoke` exit 0;
+  `git diff --check` ren. Bemærk: to tests fik dynamiske (ikke hardcodede) assertions —
+  semantisk intent bevaret, reviewet som del af diffen.
 
 ### 2. [P1] Typecheck som gate: rod-tsconfig-excludes + ryd op i src/
 - Excludér `app/`, `www/`, `examples/` fra rod-tsconfigen (de har egne configs/bygges med
@@ -97,5 +109,11 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
   før alt andet (missionens "korrekthed er alt").
 - Risici noteret: ingen rigtige datapaths set i repo-config (companies/ er gitignored);
   .env.example indeholder kun pladsholdere — intet at reagere på.
+- 2026-08-23: Opgave 1 løst (6b5e43f). Fund undervejs: (a) audit_log er append-only via
+  triggers → tidsstempler kan ikke korrigeres i tests, perioden må ankes omkring nu;
+  (b) agent-demo og smoke deler samme VIES-seed-script — én fix slog begge igennem;
+  (c) `selectVatPeriod` capper ved "nutids"-perioden, så #272-scenariet (afskrivning i
+  senere kvartal) stadig er meningsfuldt med dynamiske datoer. Næste: opgave 2
+  (typecheck-gate; inkl. `package-lock.json` → `.gitignore`).
 
-## STATUS: AKTIV — næste iteration fortsætter opgave 1.
+## STATUS: AKTIV — næste iteration starter opgave 2 (typecheck-gate).
