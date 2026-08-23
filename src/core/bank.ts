@@ -305,7 +305,9 @@ function parseCsv(content: string): CsvParseResult {
       continue;
     }
     const row: Record<string, string> = {};
-    header.forEach((key, idx) => row[key] = parsed.values[idx] ?? "");
+    for (let idx = 0; idx < header.length; idx++) {
+      row[header[idx]!] = parsed.values[idx] ?? "";
+    }
     rows.push(row);
   }
   return { rows, errors };

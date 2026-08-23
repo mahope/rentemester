@@ -281,6 +281,7 @@ function extractToolNames(content: string): string[] {
   const names = new Set<string>();
   const re = /^\s*\|\s*`([a-z][a-z0-9_]*)`\s*\|/gm;
   let match: RegExpExecArray | null;
+  // biome-ignore lint/suspicious/noAssignInExpressions: standard while-re.exec idiom
   while ((match = re.exec(content)) !== null) {
     names.add(match[1]!);
   }

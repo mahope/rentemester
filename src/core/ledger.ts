@@ -142,7 +142,7 @@ export function seedAccounts(db: Database) {
     ["7200", "Skyldig skat (skattekonto)", "liability", "credit", null]
   ];
   const insert = db.prepare("INSERT OR IGNORE INTO accounts (account_no,name,type,normal_balance,default_vat_code) VALUES (?,?,?,?,?)");
-  db.transaction(() => rows.forEach((r) => insert.run(...r)))();
+  db.transaction(() => { for (const r of rows) insert.run(...r); })();
 }
 
 export function nextEntryNo(db: Database, transactionDate: string) {

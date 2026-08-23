@@ -1,7 +1,7 @@
 // Tests: src/cli/journal.ts, src/cli/bank.ts, src/cli-format.ts,
 // src/core/invoice-booking.ts (CLI output-rendering bugs #285, #286, #288)
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 

@@ -57,7 +57,7 @@ describe("mail-intake ingest CLI", () => {
 
     await Bun.$`bun run src/cli.ts init --company ${company}`.quiet();
 
-    const run = (label: string) =>
+    const run = (_label: string) =>
       Bun.spawn(
         ["bun", "run", "src/cli.ts", "mail-intake", "ingest", "--company", company, "--source", eml, "--metadata", metaFile],
         { cwd: process.cwd(), stdout: "pipe", stderr: "pipe" },

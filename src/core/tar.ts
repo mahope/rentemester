@@ -10,7 +10,7 @@
 // owner names) is pinned to a constant. Only the file path, mode and bytes
 // vary. Entries are sorted by path before writing.
 
-import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
 
 const BLOCK = 512;

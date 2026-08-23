@@ -16,7 +16,7 @@
 // lock, the confirm gate, actor attribution and the localhost hard-gate that
 // the agent CLI / MCP stacks enforce — the server does not inherit them.
 
-import { createCompany } from "../core/company";
+import { createCompany, type CreateCompanyResult } from "../core/company";
 import {
   findWorkspaceCompany,
   renameWorkspaceCompany,
@@ -339,7 +339,7 @@ async function handleCompanyCreate(
   const body = await readJsonBody(request);
   const name = requireString(body, "name");
   const payment = parseCreatePayment(body);
-  let result;
+  let result: CreateCompanyResult;
   try {
     result = createCompany(config.workspaceRoot, {
       name,

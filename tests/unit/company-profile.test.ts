@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { ensureCompanyDirs, companyPaths } from "../../src/core/paths";
+import { companyPaths } from "../../src/core/paths";
 import { openDb, migrate } from "../../src/core/db";
 import {
   getCompanySettings,
@@ -22,6 +22,7 @@ function pdfStrings(pdf: Uint8Array | Buffer): string[] {
   const out: string[] = [];
   const re = /\(((?:[^()\\]|\\.)*)\) Tj/g;
   let match: RegExpExecArray | null;
+  // biome-ignore lint/suspicious/noAssignInExpressions: standard while-re.exec idiom
   while ((match = re.exec(text)) !== null) {
     out.push(match[1].replace(/\\([()\\])/g, "$1"));
   }

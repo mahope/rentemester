@@ -29,6 +29,11 @@ Every loop starts with one narrow hypothesis and ends with a pushed commit or an
    - Run the focused test(s) first.
    - Then run `bun test`.
    - Then run `bun run smoke` on fresh `/tmp/rentemester-smoke`.
+   - Then run `bun run typecheck` (`tsc --noEmit` against the root tsconfig,
+     which excludes `app/`, `www/`, and `examples/` — those build with their
+     own configs).
+   - Then run `bun run lint` (Biome; config in `biome.json`, scoped to
+     `src/`, `tests/`, `scripts/`).
    - Run `git diff --check` before commit.
 
    **Smoke wall-clock budget**: smoke currently completes in ~2 seconds. To
@@ -119,6 +124,8 @@ Work the queue in this order unless Mikkel explicitly reprioritizes:
 ```bash
 bun test
 bun run smoke
+bun run typecheck
+bun run lint
 ```
 
 Push to `main` only after both pass. Small docs-only commits can skip smoke only if they do not touch runtime files, but prefer running at least `bun test` when cheap.
@@ -204,5 +211,6 @@ A loop is done only when:
 - focused regression passes
 - `bun test` passes
 - `bun run smoke` passes, unless docs-only
+- `bun run typecheck` and `bun run lint` pass, unless docs-only
 - `git diff --check` passes
 - commit is pushed or WIP is explicitly parked

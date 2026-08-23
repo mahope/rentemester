@@ -3,7 +3,6 @@ import { describe, expect, test } from "bun:test";
 import {
   normalizeVatPeriodType,
   vatPeriodWindowFor,
-  type VatPeriodType,
 } from "../../src/core/periods";
 
 describe("VAT period type (#289)", () => {

@@ -265,7 +265,7 @@ function looksLikeRepresentation(bilag: CandidateBilag, bankText: string): boole
  * equals the absolute bank-line amount. Returns null on no match or on an
  * ambiguous match (more than one candidate) — ambiguity is never guessed.
  */
-function findCandidateBilag(db: Database, bankTransactionId: number, amount: number): CandidateBilag | null {
+function findCandidateBilag(db: Database, _bankTransactionId: number, amount: number): CandidateBilag | null {
   if (!(Math.abs(amount) > 0)) return null;
   // Round to integer øre to compare a raw float bank amount against the
   // document gross safely (matches the comparison the matcher uses).

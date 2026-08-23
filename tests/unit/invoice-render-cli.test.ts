@@ -16,6 +16,7 @@ function pdfStrings(pdf: Uint8Array): string[] {
   const out: string[] = [];
   const re = /\(((?:[^()\\]|\\.)*)\) Tj/g;
   let match: RegExpExecArray | null;
+  // biome-ignore lint/suspicious/noAssignInExpressions: standard while-re.exec idiom
   while ((match = re.exec(text)) !== null) {
     out.push(match[1].replace(/\\([()\\])/g, "$1"));
   }

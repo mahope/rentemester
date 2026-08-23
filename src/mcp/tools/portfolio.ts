@@ -40,6 +40,7 @@ import {
   listWorkspaceCompanies,
   resolveConfiguredWorkspaceRoot,
   resolveWorkspaceRoot,
+  type WorkspaceCompanyEntry,
 } from "../../core/workspace";
 import { envelopeShape, envelopeToCallResult, errorEnvelope, successEnvelope } from "../envelope";
 import { confirmField, redactPaths } from "../tool-runtime";
@@ -282,7 +283,7 @@ export function registerPortfolioTools(server: McpServer): void {
         return envelopeToCallResult(errorEnvelope(redactPaths(ws.error)));
       }
       const asOfDate = args.asOf ?? todayIsoDate();
-      let registered;
+      let registered: WorkspaceCompanyEntry[];
       try {
         registered = listWorkspaceCompanies(ws.root);
       } catch (error) {

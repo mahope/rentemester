@@ -2246,7 +2246,7 @@ export function buildCompanyJournal(
           }
         }
 
-        let all: JournalEntry[] = [...groups.values()].map((g, i) => {
+        const all: JournalEntry[] = [...groups.values()].map((g, i) => {
           const lines: JournalLine[] = g.lines.map((r) => ({
             accountNo: r.accountNo,
             accountName: r.accountName ?? "",

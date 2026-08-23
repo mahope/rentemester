@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { ensureCompanyDirs } from "../../src/core/paths";
 import { openDb, migrate } from "../../src/core/db";
-import { seedAccounts, postJournalEntry, verifyAuditChain } from "../../src/core/ledger";
+import { seedAccounts, postJournalEntry, } from "../../src/core/ledger";
 import { ingestDocument } from "../../src/core/documents";
 import { createCustomer, createVendor } from "../../src/core/master-data";
 import { buildGdprSubjectExport, eraseGdprSubject } from "../../src/core/gdpr";

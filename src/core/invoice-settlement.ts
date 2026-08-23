@@ -132,6 +132,7 @@ export function settleInvoiceFromBank(db: Database, input: SettleInvoiceFromBank
         throw new Error(JSON.stringify({ appliedRules: [COMBINED_RULE_ID], errors: ["combined settlement requires all included claims to be ledger-posted first"] }));
       }
 
+      // biome-ignore lint/style/useConst: declared before if-block, assigned after
       let paymentId: number | undefined;
       let claimPaymentId: number | undefined;
       let principalAmount = amount;

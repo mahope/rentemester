@@ -10,7 +10,7 @@
 // command in the actor-policy sense.
 
 import { resolveWorkspaceRoot } from "../core/workspace";
-import { resolveServerConfig } from "../server/config";
+import { resolveServerConfig, type ServerConfig } from "../server/config";
 import { startCockpitServer } from "../server/app";
 import type { CommandContext, CommandDispatch } from "../cli-dispatch";
 
@@ -30,7 +30,7 @@ export function register(dispatch: CommandDispatch): void {
       }
     }
 
-    let config;
+    let config: ServerConfig;
     try {
       config = resolveServerConfig({
         host: hostFlag,
