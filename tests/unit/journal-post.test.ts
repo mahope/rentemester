@@ -176,8 +176,8 @@ describe("journal posting", () => {
         id, entry_no, transaction_date, text, rule_version, created_by, created_by_program, status, previous_hash, entry_hash, retain_until
       ) VALUES (1, '2026-00005', '2026-05-15', 'Legacy imported entry', 'legacy-import', 'legacy', 'restore', 'posted', 'GENESIS', 'legacy-hash', '2031-12-31')`
     );
-    db.run(`INSERT INTO journal_lines (journal_entry_id, account_id, debit_amount, credit_amount, currency, text) VALUES (1, ?, 1000, 0, 'DKK', 'legacy debit')`, bank.id);
-    db.run(`INSERT INTO journal_lines (journal_entry_id, account_id, debit_amount, credit_amount, currency, text) VALUES (1, ?, 0, 1000, 'DKK', 'legacy credit')`, equity.id);
+    db.run(`INSERT INTO journal_lines (journal_entry_id, account_id, debit_amount, credit_amount, currency, text) VALUES (1, ?, 1000, 0, 'DKK', 'legacy debit')`, [bank.id]);
+    db.run(`INSERT INTO journal_lines (journal_entry_id, account_id, debit_amount, credit_amount, currency, text) VALUES (1, ?, 0, 1000, 'DKK', 'legacy credit')`, [equity.id]);
     db.run(`INSERT INTO sequences (kind, scope, value) VALUES ('journal_entry', 'company-1:2026', 1)`);
 
     const posted = postJournalEntry(db, {

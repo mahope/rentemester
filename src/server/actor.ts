@@ -46,12 +46,14 @@ export function resolveCockpitActor(_principal: Principal): ActorContext {
  * `createdByProgram` fields, without overwriting any value the caller set.
  * Mirrors `withActor` in `src/mcp/actor.ts`.
  */
-export function withCockpitActor<
-  T extends { createdBy?: string; createdByProgram?: string },
->(payload: T, actor: ActorContext): T {
+export function withCockpitActor<T extends object>(
+  payload: T,
+  actor: ActorContext,
+): T & { createdBy: string; createdByProgram: string } {
+  const existing = payload as { createdBy?: string; createdByProgram?: string };
   return {
     ...payload,
-    createdBy: payload.createdBy ?? actor.createdBy,
-    createdByProgram: payload.createdByProgram ?? actor.createdByProgram,
+    createdBy: existing.createdBy ?? actor.createdBy,
+    createdByProgram: existing.createdByProgram ?? actor.createdByProgram,
   };
 }

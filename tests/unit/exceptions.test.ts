@@ -31,7 +31,7 @@ describe("exceptions workflow", () => {
     const before = listExceptions(db, { status: "open" });
     expect(before.count).toBe(1);
     expect(before.rows[0].type).toBe("UNMATCHED_BANK_TRANSACTION");
-    expect(before.rows[0].sourceEvidence.bankTransactionId).toBe(1);
+    expect((before.rows[0].sourceEvidence as { bankTransactionId: number }).bankTransactionId).toBe(1);
 
     const resolved = resolveOpenExceptionsForBankTransaction(db, 1, "Resolved automatically by test workflow", "agent:test");
     expect(resolved.ok).toBe(true);
@@ -230,7 +230,7 @@ describe("exceptions workflow", () => {
 
     const listed = listExceptions(db, { status: "all" });
     expect(listed.count).toBe(1);
-    expect(listed.rows[0].sourceEvidence.errors[0]).toContain("sender.name");
+    expect((listed.rows[0].sourceEvidence as { errors: string[] }).errors[0]).toContain("sender.name");
 
     db.close();
     rmSync(root, { recursive: true, force: true });

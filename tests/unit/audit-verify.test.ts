@@ -63,7 +63,7 @@ function insertManualEntry(db: ReturnType<typeof openDb>, input: {
       id, entry_no, transaction_date, text, source_bank_transaction_id, document_id,
       currency, amount_foreign, amount_dkk, fx_rate_to_dkk,
       rule_version, created_by, created_by_program, status, reversal_of_entry_id, previous_hash, entry_hash
-    ) VALUES (?, ?, ?, ?, ?, NULL, ?, NULL, NULL, NULL, ?, ?, ?, ?, ?, ?, ?)`,
+    ) VALUES (?, ?, ?, ?, ?, NULL, ?, NULL, NULL, NULL, ?, ?, ?, ?, ?, ?, ?)`, [
     predictedId,
     entry.entry_no,
     entry.transaction_date,
@@ -77,21 +77,21 @@ function insertManualEntry(db: ReturnType<typeof openDb>, input: {
     entry.reversal_of_entry_id,
     input.previousHash,
     entryHash,
-  );
+  ]);
 
   const inserted = db.query("SELECT id FROM journal_entries WHERE entry_no = ?").get(entry.entry_no) as { id: number };
   for (const line of input.lines) {
     const account = db.query("SELECT id FROM accounts WHERE account_no = ?").get(line.account_no) as { id: number };
     db.run(
       `INSERT INTO journal_lines (journal_entry_id, account_id, debit_amount, credit_amount, vat_code, currency, text)
-       VALUES (?, ?, ?, ?, ?, 'DKK', ?)`,
+       VALUES (?, ?, ?, ?, ?, 'DKK', ?)`, [
       inserted.id,
       account.id,
       line.debit_amount,
       line.credit_amount,
       line.vat_code,
       line.text,
-    );
+    ]);
   }
 
   return { id: inserted.id, entryHash };
@@ -190,8 +190,8 @@ describe("audit verify", () => {
     const lastId = (db.query("SELECT MAX(id) AS id FROM journal_entries").get() as { id: number }).id;
     db.run("DROP TRIGGER journal_lines_no_delete");
     db.run("DROP TRIGGER journal_entries_no_delete");
-    db.run("DELETE FROM journal_lines WHERE journal_entry_id = ?", lastId);
-    db.run("DELETE FROM journal_entries WHERE id = ?", lastId);
+    db.run("DELETE FROM journal_lines WHERE journal_entry_id = ?", [lastId]);
+    db.run("DELETE FROM journal_entries WHERE id = ?", [lastId]);
 
     const result = verifyAuditChain(db);
     expect(result.ok).toBe(false);

@@ -167,9 +167,7 @@ export function postOpeningBalance(db: Database, input: OpeningBalanceInput): Op
     db.run(
       `INSERT INTO opening_balances (cut_over_date, journal_entry_id, journal_entry_no)
        VALUES (?, ?, ?)`,
-      cutOverDate,
-      post.entryId,
-      post.entryNo,
+      [cutOverDate, post.entryId!, post.entryNo!],
     );
     insertAuditLog(db, {
       eventType: "opening_balance_post",

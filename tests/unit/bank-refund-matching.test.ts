@@ -11,8 +11,9 @@ import { issueCreditNote } from "../../src/core/credit-notes";
 import { ingestDocument } from "../../src/core/documents";
 import { importBankCsv } from "../../src/core/bank";
 import { suggestBankMatches } from "../../src/core/bank-suggest-matches";
+import type { InvoicePayload } from "../../src/core/invoice";
 
-function invoicePayload(overrides: Record<string, unknown> = {}) {
+function invoicePayload(overrides: Partial<InvoicePayload> = {}): InvoicePayload {
   return {
     invoiceType: "full",
     vatTreatment: "standard",
@@ -63,7 +64,7 @@ describe("refund / credit-note matching (#182)", () => {
     expect(row.suggestions.length).toBeGreaterThan(0);
     const top = row.suggestions[0];
     expect(top.kind).toBe("credit_note_refund");
-    expect(top.invoiceNo).toBe(cn.creditNoteNumber);
+    expect(top.invoiceNo).toBe(cn.creditNoteNumber!);
     expect(top.confidence).toBeGreaterThanOrEqual(0.5);
 
     db.close();

@@ -31,7 +31,7 @@ type JsonRpcResponse = {
 const SERVER_PATH = new URL("../../src/mcp/server.ts", import.meta.url).pathname;
 
 class StdioMcpClient {
-  private proc: ReturnType<typeof Bun.spawn>;
+  private proc: Bun.Subprocess<"pipe", "pipe", "pipe">;
   private stdoutReader: ReadableStreamDefaultReader<Uint8Array>;
   private decoder = new TextDecoder();
   private buffer = "";

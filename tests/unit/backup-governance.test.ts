@@ -34,7 +34,7 @@ function withCompany(fn: (db: Database, companyRoot: string) => void): void {
 
 function insertBankActivity(db: Database, date: string, ref: string): void {
   db.run(
-    "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)",
+    "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)", [
     date,
     date,
     "Activity",
@@ -43,7 +43,7 @@ function insertBankActivity(db: Database, date: string, ref: string): void {
     `batch-${ref}`,
     `hash-${ref}`,
     `tx-${ref}`,
-  );
+  ]);
 }
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -142,7 +142,7 @@ describe("backup placement", () => {
         expect(placed.ok).toBe(true);
         expect(placed.placement!.verified).toBe(true);
         expect(placed.placement!.verifyMethod).toBe("sha256-reread");
-        expect(placed.placement!.backupId).toBe(backup.backupId);
+        expect(placed.placement!.backupId).toBe(backup.backupId!);
 
         const stored = listBackupDestinations(companyRoot)[0]!;
         expect(stored.placements).toHaveLength(1);

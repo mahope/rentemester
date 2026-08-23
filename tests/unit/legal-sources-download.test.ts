@@ -36,7 +36,7 @@ describe("download legal sources", () => {
 
     const result = await downloadLegalSources({
       rootDir: root,
-      fetchImpl: async () => new Response(body, { headers: { "content-type": "application/xml" } }),
+      fetchImpl: (async () => new Response(body, { headers: { "content-type": "application/xml" } })) as unknown as typeof fetch,
       now: () => "2099-01-01T00:00:00.000Z",
     });
 
@@ -73,13 +73,13 @@ describe("download legal sources", () => {
 
     const result = await downloadLegalSources({
       rootDir: root,
-      fetchImpl: async (input) => {
+      fetchImpl: (async (input: RequestInfo | URL) => {
         const url = String(input);
         if (url.includes("keep.xml")) {
           return new Response(body, { headers: { "content-type": "application/xml" } });
         }
         throw new Error("temporary upstream failure");
-      },
+      }) as unknown as typeof fetch,
     });
 
     expect(result.index.map((entry) => entry.id)).toEqual(["DK-KEEP-001"]);

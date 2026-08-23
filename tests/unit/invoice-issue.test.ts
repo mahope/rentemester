@@ -47,7 +47,7 @@ describe("invoice issue", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.invoiceNumber).toBe("2026-0001");
+    expect(`${result.invoiceNumber}`).toBe("2026-0001");
     expect(result.appliedRules).toContain("DK-INVOICE-ISSUE-001");
     expect(existsSync(result.storedPath!)).toBe(true);
     expect(existsSync(result.pdfStoredPath!)).toBe(true);
@@ -55,7 +55,7 @@ describe("invoice issue", () => {
     const stored = JSON.parse(readFileSync(result.storedPath!, "utf8"));
     expect(stored.status).toBe("issued");
     expect(stored.issuedAt).toBeTruthy();
-    expect(stored.invoiceNumber).toBe("2026-0001");
+    expect(`${stored.invoiceNumber}`).toBe("2026-0001");
 
     const row = db.query("SELECT document_type, invoice_no, status, payload_json FROM documents WHERE id = ?").get(result.documentId!) as any;
     expect(row.document_type).toBe("issued_invoice");
@@ -81,7 +81,7 @@ describe("invoice issue", () => {
     expect(rerender.ok).toBe(true);
     expect(rerender.sha256).toBe(result.pdfSha256);
 
-    expect(() => db.run("UPDATE documents SET status = 'changed' WHERE id = ?", result.documentId!)).toThrow();
+    expect(() => db.run("UPDATE documents SET status = 'changed' WHERE id = ?", [result.documentId!])).toThrow();
 
     db.close();
     rmSync(root, { recursive: true, force: true });
@@ -245,9 +245,9 @@ describe("invoice issue", () => {
       currency: "DKK"
     });
 
-    expect(first2024.invoiceNumber).toBe("2024-0001");
-    expect(second2024.invoiceNumber).toBe("2024-0002");
-    expect(first2025.invoiceNumber).toBe("2025-0001");
+    expect(`${first2024.invoiceNumber}`).toBe("2024-0001");
+    expect(`${second2024.invoiceNumber}`).toBe("2024-0002");
+    expect(`${first2025.invoiceNumber}`).toBe("2025-0001");
 
     db.close();
     rmSync(root, { recursive: true, force: true });
@@ -293,9 +293,9 @@ describe("invoice issue", () => {
       currency: "DKK"
     });
 
-    expect(first.invoiceNumber).toBe("2027-0001");
-    expect(second.invoiceNumber).toBe("2027-0002");
-    expect(next.invoiceNumber).toBe("2028-0001");
+    expect(`${first.invoiceNumber}`).toBe("2027-0001");
+    expect(`${second.invoiceNumber}`).toBe("2027-0002");
+    expect(`${next.invoiceNumber}`).toBe("2028-0001");
 
     db.close();
     rmSync(root, { recursive: true, force: true });
@@ -324,7 +324,7 @@ describe("invoice issue", () => {
     });
     expect(first.ok).toBe(true);
     // A five-digit manual number is re-padded to the canonical four-digit form.
-    expect(first.invoiceNumber).toBe("2026-0001");
+    expect(`${first.invoiceNumber}`).toBe("2026-0001");
     // The persisted snapshot and documents row carry the same canonical number.
     expect(JSON.parse(readFileSync(first.storedPath!, "utf8")).invoiceNumber).toBe("2026-0001");
     const firstRow = db
@@ -343,7 +343,7 @@ describe("invoice issue", () => {
       currency: "DKK"
     });
     expect(second.ok).toBe(true);
-    expect(second.invoiceNumber).toBe("2026-0002");
+    expect(`${second.invoiceNumber}`).toBe("2026-0002");
 
     db.close();
     rmSync(root, { recursive: true, force: true });
@@ -388,8 +388,8 @@ describe("invoice issue", () => {
 
     expect(auto.ok).toBe(true);
     expect(manual.ok).toBe(true);
-    expect(auto.invoiceNumber).toBe("2026-0001");
-    expect(manual.invoiceNumber).toBe(auto.invoiceNumber);
+    expect(`${auto.invoiceNumber}`).toBe("2026-0001");
+    expect(`${manual.invoiceNumber}`).toBe(`${auto.invoiceNumber}`);
   });
 
   test("rejects canonical manual invoice numbers that skip the next sequence value", () => {
@@ -449,7 +449,7 @@ describe("invoice issue", () => {
       currency: "DKK"
     });
     expect(first.ok).toBe(true);
-    expect(first.invoiceNumber).toBe("2026-0001");
+    expect(`${first.invoiceNumber}`).toBe("2026-0001");
 
     // Re-using the same manual number must collide on the reserved sequence value.
     const duplicate = issueInvoice(db, root, {
@@ -548,7 +548,7 @@ describe("invoice issue", () => {
     });
 
     expect(retried.ok).toBe(true);
-    expect(retried.invoiceNumber).toBe("2026-0001");
+    expect(`${retried.invoiceNumber}`).toBe("2026-0001");
 
     realDb.close();
     rmSync(root, { recursive: true, force: true });

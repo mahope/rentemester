@@ -41,7 +41,7 @@ describe("opening balance (primobalance)", () => {
       // The opening entry is explicitly flagged as the opening entry.
       const entry = db
         .query("SELECT id, text, transaction_date FROM journal_entries WHERE id = ?")
-        .get(result.entryId) as { id: number; text: string; transaction_date: string };
+        .get(result.entryId!) as { id: number; text: string; transaction_date: string };
       expect(entry.transaction_date).toBe("2026-01-01");
       expect(entry.text.startsWith(OPENING_BALANCE_TEXT)).toBe(true);
 

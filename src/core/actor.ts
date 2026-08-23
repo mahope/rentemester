@@ -64,10 +64,12 @@ export function insertAuditLog(db: Database, input: AuditLogInput) {
   const actor = resolveActor(input);
   db.run(
     "INSERT INTO audit_log (event_type, entity_type, entity_id, message, actor) VALUES (?, ?, ?, ?, ?)",
-    input.eventType,
-    input.entityType,
-    input.entityId == null ? null : String(input.entityId),
-    input.message,
-    actor.auditActor,
+    [
+      input.eventType,
+      input.entityType,
+      input.entityId == null ? null : String(input.entityId),
+      input.message,
+      actor.auditActor,
+    ],
   );
 }

@@ -222,7 +222,7 @@ export function register(dispatch: CommandDispatch): void {
     const customerIdRaw = ctx.arg("--customer-id");
     const customerId = customerIdRaw === undefined ? undefined : Number(customerIdRaw);
     const resolved = resolveInvoiceMasterData(db, payload, {
-      customerId: Number.isInteger(customerId) && customerId > 0 ? customerId : undefined,
+      customerId: customerId !== undefined && Number.isInteger(customerId) && customerId > 0 ? customerId : undefined,
     });
     if (!resolved.ok) {
       ctx.emitResult(resolved as Record<string, unknown>);
@@ -609,7 +609,7 @@ export function register(dispatch: CommandDispatch): void {
     db.close();
   });
 
-  dispatch.on("invoice", "list", (ctx) => {
+  dispatch.on("invoice", "list", (ctx: CommandContext) => {
     const minAmount = ctx.parseOptionalNumber("--min-amount");
     const maxAmount = ctx.parseOptionalNumber("--max-amount");
     if (!minAmount.ok) ctx.fatal(minAmount.error);
@@ -639,7 +639,7 @@ export function register(dispatch: CommandDispatch): void {
     db.close();
   });
 
-  dispatch.on("invoice", "find", (ctx) => {
+  dispatch.on("invoice", "find", (ctx: CommandContext) => {
     const amount = ctx.parseOptionalNumber("--amount");
     if (!amount.ok) ctx.fatal(amount.error);
     const db = openCommandDb(ctx);
@@ -664,7 +664,7 @@ export function register(dispatch: CommandDispatch): void {
     db.close();
   });
 
-  dispatch.on("invoice", "overdue", (ctx) => {
+  dispatch.on("invoice", "overdue", (ctx: CommandContext) => {
     const minDays = ctx.parseOptionalNumber("--min-days");
     if (!minDays.ok) ctx.fatal(minDays.error);
     const db = openCommandDb(ctx);

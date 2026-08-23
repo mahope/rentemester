@@ -44,7 +44,7 @@ describe("retention tracking", () => {
     expect(posted.ok).toBe(true);
 
     db.exec("DROP TRIGGER IF EXISTS journal_entries_no_update");
-    db.run("UPDATE journal_entries SET retain_until = NULL WHERE id = ?", posted.entryId!);
+    db.run("UPDATE journal_entries SET retain_until = NULL WHERE id = ?", [posted.entryId!]);
     db.exec(`CREATE TRIGGER journal_entries_no_update BEFORE UPDATE ON journal_entries BEGIN SELECT RAISE(ABORT, 'journal_entries are append-only; create reversal instead'); END;`);
 
     expect(() => migrate(db)).not.toThrow();

@@ -185,8 +185,7 @@ export function postInvoiceReminderToLedger(db: Database, input: PostInvoiceRemi
 
       db.run(
         `INSERT INTO invoice_reminder_postings (reminder_id, journal_entry_id) VALUES (?, ?)`,
-        reminder.id,
-        journal.entryId,
+        [reminder.id, journal.entryId!],
       );
 
       insertAuditLog(db, {

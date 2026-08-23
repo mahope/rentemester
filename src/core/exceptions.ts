@@ -197,9 +197,7 @@ export function resolveException(db: Database, input: ResolveExceptionInput) {
     `UPDATE exceptions
      SET status = 'resolved', resolved_at = CURRENT_TIMESTAMP, resolved_by = ?, resolution_note = ?
      WHERE id = ?`,
-    input.resolvedBy ?? null,
-    input.note?.trim() || null,
-    input.id,
+    [input.resolvedBy ?? null, input.note?.trim() || null, input.id],
   );
 
   return { ok: true, resolved: true, errors: [] };
@@ -220,9 +218,12 @@ export function resolveOpenExceptionsForBankTransaction(db: Database, bankTransa
       `UPDATE exceptions
        SET status = 'resolved', resolved_at = CURRENT_TIMESTAMP, resolved_by = ?, resolution_note = ?
        WHERE id = ?`,
-      resolvedBy ?? null,
-      note?.trim() || "Resolved automatically when bank transaction was linked to a posted journal entry",
-      row.id,
+      [
+        resolvedBy ?? null,
+        note?.trim() ||
+          "Resolved automatically when bank transaction was linked to a posted journal entry",
+        row.id,
+      ],
     );
   }
 

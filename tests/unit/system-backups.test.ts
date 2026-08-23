@@ -67,7 +67,7 @@ describe("system backups", () => {
       const db = openDb(process.argv[2]);
       const started = Date.now();
       db.run(
-        "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)",
+        "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)", [
         "2026-05-17",
         "2026-05-17",
         "Concurrent customer payment",
@@ -76,7 +76,7 @@ describe("system backups", () => {
         "batch-lock-1",
         "hash-lock-a",
         "tx-lock-1",
-      );
+      ]);
       console.log(String(Date.now() - started));
       db.close();
     `);
@@ -164,7 +164,7 @@ describe("system backups", () => {
     expect(backup.ok).toBe(true);
 
     db.run(
-      "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)",
+      "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)", [
       "2026-05-17",
       "2026-05-17",
       "Later same-day bank activity",
@@ -173,7 +173,7 @@ describe("system backups", () => {
       "batch-sameday-1",
       "hash-sameday-a",
       "tx-sameday-1",
-    );
+    ]);
 
     const status = getBackupComplianceStatus(db, companyRoot, "2026-05-17T03:00:00.000Z");
     expect(status.hasActivitySinceBackup).toBe(true);
@@ -197,7 +197,7 @@ describe("system backups", () => {
     const dayAfterBackup = new Date(Date.parse(oldBackupAt) + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
     db.run(
-      "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)",
+      "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)", [
       dayBeforeBackup,
       dayBeforeBackup,
       "Customer payment",
@@ -206,13 +206,13 @@ describe("system backups", () => {
       "batch-1",
       "hash-a",
       "tx-1",
-    );
+    ]);
 
     const backup = createSystemBackup(db, companyRoot, { createdAt: oldBackupAt });
     expect(backup.ok).toBe(true);
 
     db.run(
-      "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)",
+      "INSERT INTO bank_transactions (transaction_date, booking_date, text, amount, currency, reference, import_batch_id, source_file_hash, transaction_hash) VALUES (?, ?, ?, ?, 'DKK', ?, ?, ?, ?)", [
       dayAfterBackup,
       dayAfterBackup,
       "Late customer payment",
@@ -221,7 +221,7 @@ describe("system backups", () => {
       "batch-2",
       "hash-b",
       "tx-2",
-    );
+    ]);
 
     const status = getBackupComplianceStatus(db, companyRoot, statusCheckAt);
     expect(status.ok).toBe(false);

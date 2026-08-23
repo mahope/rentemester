@@ -237,11 +237,11 @@ export function findVendorByKey(db: Database, vatOrCvr: string | null, name: str
 }
 
 export function resolveInvoiceMasterData(db: Database, payload: InvoicePayload, options: { customerId?: number | null }) {
-  if (!options.customerId) return { ok: true, payload };
+  if (!options.customerId) return { ok: true as const, payload };
   const customer = getCustomerById(db, options.customerId);
-  if (!customer || customer.archived) return { ok: false, errors: [`customer ${options.customerId} does not exist`] };
+  if (!customer || customer.archived) return { ok: false as const, errors: [`customer ${options.customerId} does not exist`] };
   return {
-    ok: true,
+    ok: true as const,
     payload: {
       ...payload,
       buyer: {
@@ -331,11 +331,11 @@ export async function vendorInputFromCvr(
 }
 
 export function resolveDocumentMasterData(db: Database, metadata: DocumentMetadata, options: { vendorId?: number | null }) {
-  if (!options.vendorId) return { ok: true, metadata };
+  if (!options.vendorId) return { ok: true as const, metadata };
   const vendor = getVendorById(db, options.vendorId);
-  if (!vendor || vendor.archived) return { ok: false, errors: [`vendor ${options.vendorId} does not exist`] };
+  if (!vendor || vendor.archived) return { ok: false as const, errors: [`vendor ${options.vendorId} does not exist`] };
   return {
-    ok: true,
+    ok: true as const,
     metadata: {
       ...metadata,
       sender: {

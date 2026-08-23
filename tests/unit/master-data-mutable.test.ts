@@ -24,11 +24,11 @@ describe("customers/vendors are mutable master data", () => {
     const id = (created as { customerId: number }).customerId;
 
     // UPDATE — was blocked by the customers_no_update trigger.
-    expect(() => db.run("UPDATE customers SET address = ? WHERE id = ?", "Ny vej 1", id)).not.toThrow();
+    expect(() => db.run("UPDATE customers SET address = ? WHERE id = ?", ["Ny vej 1", id])).not.toThrow();
     expect((db.query("SELECT address FROM customers WHERE id = ?").get(id) as { address: string }).address).toBe("Ny vej 1");
 
     // DELETE — was blocked by the customers_no_delete trigger.
-    expect(() => db.run("DELETE FROM customers WHERE id = ?", id)).not.toThrow();
+    expect(() => db.run("DELETE FROM customers WHERE id = ?", [id])).not.toThrow();
     expect(db.query("SELECT COUNT(*) AS n FROM customers").get()).toEqual({ n: 0 });
 
     db.close();
@@ -41,8 +41,8 @@ describe("customers/vendors are mutable master data", () => {
     expect(created.ok).toBe(true);
     const id = (created as { vendorId: number }).vendorId;
 
-    expect(() => db.run("UPDATE vendors SET notes = ? WHERE id = ?", "ret", id)).not.toThrow();
-    expect(() => db.run("DELETE FROM vendors WHERE id = ?", id)).not.toThrow();
+    expect(() => db.run("UPDATE vendors SET notes = ? WHERE id = ?", ["ret", id])).not.toThrow();
+    expect(() => db.run("DELETE FROM vendors WHERE id = ?", [id])).not.toThrow();
 
     db.close();
     rmSync(root, { recursive: true, force: true });

@@ -457,8 +457,7 @@ export function generateRecurringInvoice(
     if (nextIssueDate > template.next_issue_date) {
       db.run(
         `UPDATE recurring_invoice_templates SET next_issue_date = ? WHERE id = ?`,
-        nextIssueDate,
-        template.id,
+        [nextIssueDate, template.id],
       );
     }
 

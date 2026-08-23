@@ -259,7 +259,7 @@ describe("cockpit VAT card + obligations — cadence-aware (#299)", () => {
       // Activity in the first half — today (May) falls in that half.
       postVatSale(ws, slug, "2026-03-15");
       const overview = buildCompanyOverview(ws, slug, 2026);
-      expect(overview.vat.periodLabel).toBe("1. halvår 2026");
+      expect(overview.vat!.periodLabel).toBe("1. halvår 2026");
     } finally {
       rmSync(ws, { recursive: true, force: true });
     }

@@ -62,7 +62,7 @@ describe("bank reconciliation", () => {
     expect(report.ok).toBe(true);
     expect(report.matchedCount).toBe(1);
     expect(report.unmatchedCount).toBe(1);
-    expect(report.matched[0].journalEntryNo).toBe(posted.entryNo);
+    expect(report.matched[0].journalEntryNo).toBe(posted.entryNo!);
     expect(report.unmatched[0].text).toBe("Customer payment");
     expect(report.matchedAmountTotal).toBe(-1250);
     expect(report.unmatchedAmountTotal).toBe(2500);

@@ -28,7 +28,7 @@ function freshCompany(prefix: string) {
 describe("synthetic-CSV example parser", () => {
   test("parses the synthetic sample into a balanced normalised source", () => {
     const csv = readFileSync(SAMPLE_PATH, "utf8");
-    const parsed = syntheticCsvParser.parse(csv);
+    const parsed = syntheticCsvParser.parse!(csv);
     expect(parsed.ok).toBe(true);
     const source = parsed.source!;
     expect(source.sourceSystem).toBe("synthetic-csv");
@@ -45,7 +45,7 @@ describe("synthetic-CSV example parser", () => {
     const csv = readFileSync(SAMPLE_PATH, "utf8");
     const { root, db } = freshCompany("rentemester-import-synth-");
     try {
-      const parsed = syntheticCsvParser.parse(csv);
+      const parsed = syntheticCsvParser.parse!(csv);
       expect(parsed.ok).toBe(true);
       const result = runImport(db, parsed.source!, { createdBy: "user:tester" });
       expect(result.errors).toEqual([]);
@@ -60,7 +60,7 @@ describe("synthetic-CSV example parser", () => {
       // Deterministic: a second run on a fresh company yields the same entryNo.
       const { root: root2, db: db2 } = freshCompany("rentemester-import-synth2-");
       try {
-        const result2 = runImport(db2, syntheticCsvParser.parse(csv).source!, {
+        const result2 = runImport(db2, syntheticCsvParser.parse!(csv).source!, {
           createdBy: "user:tester",
         });
         expect(result2.entryNo).toBe(result.entryNo);
@@ -85,7 +85,7 @@ describe("synthetic-CSV example parser", () => {
       "opening,2000,,80000,",
       "opening,5000,,,70000",
     ].join("\n");
-    const parsed = syntheticCsvParser.parse(unbalanced);
+    const parsed = syntheticCsvParser.parse!(unbalanced);
     // Either the parser flags it, or the framework does — but it must not post.
     const { root, db } = freshCompany("rentemester-import-synth-unbal-");
     try {
@@ -109,7 +109,7 @@ describe("synthetic-CSV example parser", () => {
       "account,2000,Bank,,",
       "opening,2000,,80000,",
     ].join("\n");
-    const parsed = syntheticCsvParser.parse(noDate);
+    const parsed = syntheticCsvParser.parse!(noDate);
     expect(parsed.ok).toBe(false);
     expect(parsed.errors.join(" ").toLowerCase()).toContain("cut-over");
   });

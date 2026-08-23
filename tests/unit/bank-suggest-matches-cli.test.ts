@@ -9,8 +9,9 @@ import { seedAccounts } from "../../src/core/ledger";
 import { issueInvoice } from "../../src/core/issued-invoices";
 import { ingestDocument } from "../../src/core/documents";
 import { importBankCsv } from "../../src/core/bank";
+import type { InvoicePayload } from "../../src/core/invoice";
 
-function invoicePayload(overrides: Record<string, unknown> = {}) {
+function invoicePayload(overrides: Partial<InvoicePayload> = {}): InvoicePayload {
   return {
     invoiceType: "full",
     vatTreatment: "standard",
