@@ -71,7 +71,7 @@ Seneste commit er 2026-05-22; i dag 2026-08-22. Fixtures med hardkodede datoer e
   `git diff --check` ren. Bemærk: to tests fik dynamiske (ikke hardcodede) assertions —
   semantisk intent bevaret, reviewet som del af diffen.
 
-### 2. [P1] Typecheck som gate: rod-tsconfig-excludes + ryd op i src/
+### 2. [P1] I GANG (2026-08-23) — Typecheck som gate: rod-tsconfig-excludes + ryd op i src/
 - Excludér `app/`, `www/`, `examples/` fra rod-tsconfigen (de har egne configs/bygges med
   vite). Fiks derefter de ~84 reelle strict-fejl i `src/` (og 107 i `tests/`) trinvis.
 - Tilføj `"typecheck": "tsc --noEmit"` script; optag den i gate-definitionen her når grøn.
